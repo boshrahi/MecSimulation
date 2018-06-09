@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="cc.redberry:combinatorics:2.0" type="repository">
+    <properties maven-id="cc.redberry:combinatorics:2.0" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/combinatorics-2.0.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
