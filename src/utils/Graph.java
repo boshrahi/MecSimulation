@@ -23,6 +23,7 @@ public class Graph {
     public static final String SAGO = "SAGO";
     public static final String SHENTEL = "SHENTEL";
     public static final String MISSOURI = "MISSOURI";
+    public static final String TEST = "TEST";
     public GraphModel model;
 
 
@@ -41,6 +42,9 @@ public class Graph {
             case MISSOURI:
                 model = creatGraph(MISSOURI);
                 break;
+            case TEST:
+                model = creatGraph(TEST);
+                break;
         }
 
 
@@ -55,17 +59,20 @@ public class Graph {
         try {
 
             switch (type) {
+                case TEST:
+                    jsonObject = (JSONObject) parser.parse(new FileReader("test.json"));
+                    break;
                 case SPIRALIGHT:
-                    jsonObject = (JSONObject) parser.parse(new FileReader("Spiralight.json"));
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Spiralight2.json"));
                     break;
                 case SAGO:
-                    jsonObject = (JSONObject) parser.parse(new FileReader("Sago.json"));
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Sago2.json"));
                     break;
                 case SHENTEL:
-                    jsonObject = (JSONObject) parser.parse(new FileReader("Shentel.json"));
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Shentel2.json"));
                     break;
                 case MISSOURI:
-                    jsonObject = (JSONObject) parser.parse(new FileReader("Missouri.json"));
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Missouri2.json"));
                     break;
             }
         }catch (Exception e){}
@@ -97,9 +104,10 @@ public class Graph {
                 long source = (long) obj.get("source");
                 long target = (long) obj.get("target");
                 String id = (String) obj.get("id");
+                double distance = (double) obj.get("distance");
 
                 if (source==i){
-                    EdgeModel edgeModel = new EdgeModel(source,target,id);
+                    EdgeModel edgeModel = new EdgeModel(source,target,id,distance);
                     graphModel.edgeModelList.add(edgeModel);
                 }
 
