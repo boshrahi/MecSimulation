@@ -273,417 +273,500 @@
       {
          "source":0,
          "target":7,
-         "id":"e0"
+         "id":"e0",
+        "distance": 39
       },
       {
          "source":1,
          "target":62,
-         "id":"e1"
+         "id":"e1",
+        "distance": 7
       },
       {
          "source":1,
          "target":63,
-         "id":"e2"
+         "id":"e2",
+        "distance": 21
       },
       {
          "source":2,
          "target":57,
-         "id":"e3"
+         "id":"e3",
+        "distance": 49
       },
       {
          "source":2,
          "target":58,
-         "id":"e4"
+         "id":"e4",
+        "distance": 7
       },
       {
          "source":2,
          "target":3,
-         "id":"e5"
+         "id":"e5",
+        "distance": 29
       },
       {
          "source":2,
          "target":52,
-         "id":"e6"
+         "id":"e6",
+        "distance": 12
       },
       {
          "source":2,
          "target":59,
-         "id":"e7"
+         "id":"e7",
+        "distance": 8
       },
       {
          "source":4,
          "target":10,
-         "id":"e8"
+         "id":"e8",
+        "distance": 34
       },
       {
          "source":4,
          "target":11,
-         "id":"e9"
+         "id":"e9",
+        "distance": 31
       },
       {
          "source":4,
          "target":5,
-         "id":"e10"
+         "id":"e10",
+        "distance": 29
       },
       {
          "source":4,
          "target":45,
-         "id":"e11"
+         "id":"e11",
+        "distance": 40
       },
       {
          "source":4,
          "target":7,
-         "id":"e12"
+         "id":"e12",
+        "distance": 11
       },
       {
          "source":5,
          "target":48,
-         "id":"e13"
+         "id":"e13",
+        "distance": 48
       },
       {
          "source":6,
          "target":34,
-         "id":"e14"
+         "id":"e14",
+        "distance": 47
       },
       {
          "source":7,
          "target":34,
-         "id":"e15"
+         "id":"e15",
+        "distance": 23
       },
       {
          "source":8,
          "target":45,
-         "id":"e16"
+         "id":"e16",
+        "distance": 35
       },
       {
          "source":9,
          "target":32,
-         "id":"e17"
+         "id":"e17",
+        "distance": 11
       },
       {
          "source":9,
          "target":26,
-         "id":"e18"
+         "id":"e18",
+        "distance": 41
       },
       {
          "source":9,
          "target":12,
-         "id":"e19"
+         "id":"e19",
+        "distance": 27
       },
       {
          "source":10,
          "target":62,
-         "id":"e20"
+         "id":"e20",
+        "distance": 38
       },
       {
          "source":11,
          "target":14,
-         "id":"e21"
+         "id":"e21",
+        "distance": 31
       },
       {
          "source":11,
          "target":55,
-         "id":"e22"
+         "id":"e22",
+        "distance": 9
       },
       {
          "source":12,
          "target":15,
-         "id":"e23"
+         "id":"e23",
+        "distance": 10
       },
       {
          "source":13,
          "target":15,
-         "id":"e24"
+         "id":"e24",
+        "distance": 21
       },
       {
          "source":14,
          "target":29,
-         "id":"e25"
+         "id":"e25",
+        "distance": 47
       },
       {
          "source":14,
          "target":30,
-         "id":"e26"
+         "id":"e26",
+        "distance": 46
       },
       {
          "source":15,
          "target":28,
-         "id":"e27"
+         "id":"e27",
+        "distance": 24
       },
       {
          "source":16,
          "target":17,
-         "id":"e28"
+         "id":"e28",
+        "distance": 10
       },
       {
          "source":16,
          "target":25,
-         "id":"e29"
+         "id":"e29",
+        "distance": 15
       },
       {
          "source":16,
          "target":49,
-         "id":"e30"
+         "id":"e30",
+        "distance": 15
       },
       {
          "source":17,
          "target":41,
-         "id":"e31"
+         "id":"e31",
+        "distance": 6
       },
       {
          "source":17,
          "target":42,
-         "id":"e32"
+         "id":"e32",
+        "distance": 24
       },
       {
          "source":17,
          "target":38,
-         "id":"e33"
+         "id":"e33",
+        "distance": 19
       },
       {
          "source":18,
          "target":19,
-         "id":"e34"
+         "id":"e34",
+        "distance": 43
       },
       {
          "source":18,
          "target":47,
-         "id":"e35"
+         "id":"e35",
+        "distance": 38
       },
       {
          "source":19,
          "target":20,
-         "id":"e36"
+         "id":"e36",
+        "distance": 21
       },
       {
          "source":20,
          "target":24,
-         "id":"e37"
+         "id":"e37",
+        "distance": 24
       },
       {
          "source":21,
          "target":33,
-         "id":"e38"
+         "id":"e38",
+        "distance": 23
       },
       {
          "source":21,
          "target":23,
-         "id":"e39"
+         "id":"e39",
+        "distance": 32
       },
       {
          "source":22,
          "target":33,
-         "id":"e40"
+         "id":"e40",
+        "distance": 37
       },
       {
          "source":23,
          "target":40,
-         "id":"e41"
+         "id":"e41",
+        "distance": 39
       },
       {
          "source":24,
          "target":25,
-         "id":"e42"
+         "id":"e42",
+        "distance": 18
       },
       {
          "source":26,
          "target":27,
-         "id":"e43"
+         "id":"e43",
+        "distance": 21
       },
       {
          "source":28,
          "target":30,
-         "id":"e44"
+         "id":"e44",
+        "distance": 29
       },
       {
          "source":29,
          "target":55,
-         "id":"e45"
+         "id":"e45",
+        "distance": 11
       },
       {
          "source":30,
          "target":41,
-         "id":"e46"
+         "id":"e46",
+        "distance": 32
       },
       {
          "source":30,
          "target":43,
-         "id":"e47"
+         "id":"e47",
+        "distance": 19
       },
       {
          "source":31,
          "target":35,
-         "id":"e48"
+         "id":"e48",
+        "distance": 47
       },
       {
          "source":31,
          "target":36,
-         "id":"e49"
+         "id":"e49",
+        "distance": 5
       },
       {
          "source":31,
          "target":62,
-         "id":"e50"
+         "id":"e50",
+        "distance": 27
       },
       {
          "source":32,
          "target":42,
-         "id":"e51"
+         "id":"e51",
+        "distance": 49
       },
       {
          "source":32,
          "target":44,
-         "id":"e52"
+         "id":"e52",
+        "distance": 38
       },
       {
          "source":32,
          "target":41,
-         "id":"e53"
+         "id":"e53",
+        "distance": 10
       },
       {
          "source":33,
          "target":37,
-         "id":"e54"
+         "id":"e54",
+        "distance": 17
       },
       {
          "source":34,
          "target":35,
-         "id":"e55"
+         "id":"e55",
+        "distance": 30
       },
       {
          "source":34,
          "target":62,
-         "id":"e56"
+         "id":"e56",
+        "distance": 42
       },
       {
          "source":35,
          "target":36,
-         "id":"e57"
+         "id":"e57",
+        "distance": 25
       },
       {
          "source":36,
          "target":45,
-         "id":"e58"
+         "id":"e58",
+        "distance": 12
       },
       {
          "source":37,
          "target":38,
-         "id":"e59"
+         "id":"e59",
+        "distance": 29
       },
       {
          "source":39,
          "target":40,
-         "id":"e60"
+         "id":"e60",
+        "distance": 35
       },
       {
          "source":39,
          "target":42,
-         "id":"e61"
+         "id":"e61",
+        "distance": 32
       },
       {
          "source":41,
          "target":44,
-         "id":"e62"
+         "id":"e62",
+        "distance": 19
       },
       {
          "source":43,
          "target":44,
-         "id":"e63"
+         "id":"e63",
+        "distance": 27
       },
       {
          "source":46,
          "target":51,
-         "id":"e64"
+         "id":"e64",
+        "distance": 43
       },
       {
          "source":46,
          "target":54,
-         "id":"e65"
+         "id":"e65",
+        "distance": 13
       },
       {
          "source":47,
          "target":53,
-         "id":"e66"
+         "id":"e66",
+        "distance": 30
       },
       {
          "source":48,
          "target":55,
-         "id":"e67"
+         "id":"e67",
+        "distance": 40
       },
       {
          "source":49,
          "target":50,
-         "id":"e68"
+         "id":"e68",
+        "distance": 6
       },
       {
          "source":49,
          "target":63,
-         "id":"e69"
+         "id":"e69",
+        "distance": 20
       },
       {
          "source":50,
          "target":51,
-         "id":"e70"
+         "id":"e70",
+        "distance": 37
       },
       {
          "source":53,
          "target":66,
-         "id":"e71"
+         "id":"e71",
+        "distance": 24
       },
       {
          "source":53,
          "target":54,
-         "id":"e72"
+         "id":"e72",
+        "distance": 29
       },
       {
          "source":56,
          "target":58,
-         "id":"e73"
+         "id":"e73",
+        "distance": 37
       },
       {
          "source":56,
          "target":61,
-         "id":"e74"
+         "id":"e74",
+        "distance": 34
       },
       {
          "source":57,
          "target":65,
-         "id":"e75"
+         "id":"e75",
+        "distance": 45
       },
       {
          "source":58,
          "target":65,
-         "id":"e76"
+         "id":"e76",
+        "distance": 39
       },
       {
          "source":59,
          "target":60,
-         "id":"e77"
+         "id":"e77",
+        "distance": 44
       },
       {
          "source":60,
          "target":61,
-         "id":"e78"
+         "id":"e78",
+        "distance": 5
       },
       {
          "source":61,
          "target":62,
-         "id":"e79"
+         "id":"e79",
+        "distance": 13
       },
       {
          "source":63,
          "target":64,
-         "id":"e80"
+         "id":"e80",
+        "distance": 25
       },
       {
          "source":64,
          "target":66,
-         "id":"e81"
+         "id":"e81",
+        "distance": 27
       },
       {
          "source":65,
          "target":66,
-         "id":"e82"
+         "id":"e82",
+        "distance": 23
       }
    ]
 }

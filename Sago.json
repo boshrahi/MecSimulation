@@ -77,87 +77,104 @@
       {
          "source":0,
          "target":1,
-         "id":"e0"
+         "id":"e0",
+        "distance": 29
       },
       {
          "source":0,
          "target":4,
-         "id":"e1"
+         "id":"e1",
+        "distance": 46
       },
       {
          "source":1,
          "target":16,
-         "id":"e2"
+         "id":"e2",
+        "distance": 21
       },
       {
          "source":2,
          "target":3,
-         "id":"e3"
+         "id":"e3",
+        "distance": 27
       },
       {
          "source":2,
          "target":5,
-         "id":"e4"
+         "id":"e4",
+        "distance": 22
       },
       {
          "source":3,
          "target":17,
-         "id":"e5"
+         "id":"e5",
+        "distance": 30
       },
       {
          "source":4,
          "target":7,
-         "id":"e6"
+         "id":"e6",
+        "distance": 45
       },
       {
          "source":6,
          "target":7,
-         "id":"e7"
+         "id":"e7",
+        "distance": 29
       },
       {
          "source":8,
          "target":9,
-         "id":"e8"
+         "id":"e8",
+        "distance": 49
       },
       {
          "source":8,
          "target":11,
-         "id":"e9"
+         "id":"e9",
+        "distance": 46
       },
       {
          "source":10,
          "target":11,
-         "id":"e10"
+         "id":"e10",
+        "distance": 31
       },
       {
          "source":10,
          "target":13,
-         "id":"e11"
+         "id":"e11",
+        "distance": 37
       },
       {
          "source":12,
          "target":13,
-         "id":"e12"
+         "id":"e12",
+        "distance": 11
       },
       {
          "source":12,
          "target":15,
-         "id":"e13"
+         "id":"e13",
+        "distance": 47
       },
       {
          "source":14,
          "target":17,
-         "id":"e14"
+         "id":"e14",
+        "distance": 47
       },
       {
          "source":14,
          "target":15,
-         "id":"e15"
+         "id":"e15",
+        "distance": 31
       },
       {
          "source":16,
          "target":17,
-         "id":"e16"
+         "id":"e16",
+        "distance": 11
       }
    ]
 }

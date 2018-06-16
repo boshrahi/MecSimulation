@@ -117,177 +117,212 @@
       {
          "source":0,
          "target":1,
-         "id":"e23"
+         "id":"e23",
+        "distance": 9
       },
       {
          "source":0,
          "target":6,
-         "id":"e24"
+         "id":"e24",
+        "distance": 27
       },
       {
          "source":1,
          "target":3,
-         "id":"e22"
+         "id":"e22",
+        "distance": 7
       },
       {
          "source":1,
          "target":6,
-         "id":"e25"
+         "id":"e25",
+        "distance": 46
       },
       {
          "source":2,
          "target":3,
-         "id":"e20"
+         "id":"e20",
+        "distance": 7
       },
       {
          "source":2,
          "target":20,
-         "id":"e0"
+         "id":"e0",
+        "distance": 34
       },
       {
          "source":2,
          "target":6,
-         "id":"e21"
+         "id":"e21",
+        "distance": 47
       },
       {
          "source":2,
          "target":15,
-         "id":"e19"
+         "id":"e19",
+        "distance": 45
       },
       {
          "source":3,
          "target":25,
-         "id":"e13"
+         "id":"e13",
+        "distance": 15
       },
       {
          "source":4,
          "target":14,
-         "id":"e27"
+         "id":"e27",
+        "distance": 39
       },
       {
          "source":5,
          "target":14,
-         "id":"e28"
+         "id":"e28",
+        "distance": 38
       },
       {
          "source":7,
          "target":16,
-         "id":"e26"
+         "id":"e26",
+        "distance": 28
       },
       {
          "source":7,
          "target":21,
-         "id":"e5"
+         "id":"e5",
+        "distance": 24
       },
       {
          "source":8,
          "target":24,
-         "id":"e12"
+         "id":"e12",
+        "distance": 23
       },
       {
          "source":8,
          "target":9,
-         "id":"e2"
+         "id":"e2",
+        "distance": 23
       },
       {
          "source":8,
          "target":23,
-         "id":"e9"
+         "id":"e9",
+        "distance": 43
       },
       {
          "source":9,
          "target":13,
-         "id":"e5"
+         "id":"e5",
+        "distance": 37
       },
       {
          "source":10,
          "target":17,
-         "id":"e34"
+         "id":"e34",
+        "distance": 30
       },
       {
          "source":10,
          "target":11,
-         "id":"e33"
+         "id":"e33",
+        "distance": 46
       },
       {
          "source":11,
          "target":12,
-         "id":"e32"
+         "id":"e32",
+        "distance": 46
       },
       {
          "source":12,
          "target":13,
-         "id":"e29"
+         "id":"e29",
+        "distance": 41
       },
       {
          "source":14,
          "target":24,
-         "id":"e11"
+         "id":"e11",
+        "distance": 31
       },
       {
          "source":14,
          "target":20,
-         "id":"e30"
+         "id":"e30",
+        "distance": 35
       },
       {
          "source":15,
          "target":19,
-         "id":"e18"
+         "id":"e18",
+        "distance": 44
       },
       {
          "source":15,
          "target":20,
-         "id":"e3"
+         "id":"e3",
+        "distance": 16
       },
       {
          "source":15,
          "target":21,
-         "id":"e4"
+         "id":"e4",
+        "distance": 11
       },
       {
          "source":16,
          "target":22,
-         "id":"e6"
+         "id":"e6",
+        "distance": 33
       },
       {
          "source":16,
          "target":23,
-         "id":"e8"
+         "id":"e8",
+        "distance": 24
       },
       {
          "source":18,
          "target":19,
-         "id":"e17"
+         "id":"e17",
+        "distance": 37
       },
       {
          "source":18,
          "target":27,
-         "id":"e16"
+         "id":"e16",
+        "distance": 46
       },
       {
          "source":20,
          "target":22,
-         "id":"e1"
+         "id":"e1",
+        "distance": 39
       },
       {
          "source":22,
          "target":24,
-         "id":"e7"
+         "id":"e7",
+        "distance": 6
       },
       {
          "source":23,
          "target":24,
-         "id":"e10"
+         "id":"e10",
+        "distance": 18
       },
       {
          "source":25,
          "target":26,
-         "id":"e14"
+         "id":"e14",
+        "distance": 23
       },
       {
          "source":26,
          "target":27,
-         "id":"e15"
+         "id":"e15",
+        "distance": 41
       }
    ]
 }

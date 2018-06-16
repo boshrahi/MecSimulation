@@ -1,8 +1,10 @@
+import utils.Graph;
+
 public class Main {
 
     public static void main(String[] args) {
 
-        Simulation simulation = new Simulation(Graph.SPIRALIGHT,3,4,2,12,0.5);
+        Simulation2 simulation = new Simulation2(Graph.SAGO,2,36,2);  // alan faqat baraye 2 ta app javab midahad
         double T_MIN = simulation.optimalEnumerationPlacementAlgorithm();
     }
 

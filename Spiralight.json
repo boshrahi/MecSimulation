@@ -65,82 +65,98 @@
       {
          "source":0,
          "target":3,
-         "id":"e13"
+         "id":"e13",
+        "distance": 9
       },
       {
          "source":0,
          "target":4,
-         "id":"e14"
+         "id":"e14",
+        "distance": 40
       },
       {
          "source":1,
          "target":2,
-         "id":"e12"
+         "id":"e12",
+        "distance": 17
       },
       {
          "source":1,
          "target":4,
-         "id":"e15"
+         "id":"e15",
+        "distance": 41
       },
       {
          "source":2,
          "target":5,
-         "id":"e10"
+         "id":"e10",
+        "distance": 49
       },
       {
          "source":3,
          "target":5,
-         "id":"e11"
+         "id":"e11",
+        "distance": 34
       },
       {
          "source":5,
          "target":6,
-         "id":"e9"
+         "id":"e9",
+        "distance": 22
       },
       {
          "source":5,
          "target":14,
-         "id":"e8"
+         "id":"e8",
+        "distance": 28
       },
       {
          "source":6,
          "target":8,
-         "id":"e2"
+         "id":"e2",
+        "distance": 32
       },
       {
          "source":7,
          "target":8,
-         "id":"e0"
+         "id":"e0",
+        "distance": 26
       },
       {
          "source":7,
          "target":9,
-         "id":"e1"
+         "id":"e1",
+        "distance": 38
       },
       {
          "source":9,
          "target":10,
-         "id":"e3"
+         "id":"e3",
+        "distance": 40
       },
       {
          "source":10,
          "target":11,
-         "id":"e4"
+         "id":"e4",
+        "distance": 46
       },
       {
          "source":11,
          "target":12,
-         "id":"e5"
+         "id":"e5",
+        "distance": 50
       },
       {
          "source":12,
          "target":13,
-         "id":"e6"
+         "id":"e6",
+        "distance": 48
       },
       {
          "source":13,
          "target":14,
-         "id":"e7"
+         "id":"e7",
+        "distance": 26
       }
    ]
 }

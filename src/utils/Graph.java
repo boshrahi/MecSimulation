@@ -1,3 +1,4 @@
+package utils;
 
 import model.EdgeModel;
 import model.GraphModel;
@@ -11,10 +12,10 @@ import java.io.FileReader;
 /**
  * @author boshra
  * this class is for making graph of mec server: we use graphs of real world obtained from http://www.topology-zoo.org/explore.html
- * Graph 1 : Spiralight               model.NodeModel = 15 Link = 16
- * Graph 2 : Sago                     model.NodeModel = 18 Link = 17
- * Graph 3 : Shentel                  model.NodeModel = 28 Link = 35
- * Graph 4 : Missouri                 model.NodeModel = 67 Link = 83
+ * utils.Graph 1 : Spiralight               model.NodeModel = 15 Link = 16
+ * utils.Graph 2 : Sago                     model.NodeModel = 18 Link = 17
+ * utils.Graph 3 : Shentel                  model.NodeModel = 28 Link = 35
+ * utils.Graph 4 : Missouri                 model.NodeModel = 67 Link = 83
  *
  */
 
@@ -24,6 +25,7 @@ public class Graph {
     public static final String SHENTEL = "SHENTEL";
     public static final String MISSOURI = "MISSOURI";
     public static final String TEST = "TEST";
+    public static final String NOEL = "NOEL";
     public GraphModel model;
 
 
@@ -32,6 +34,9 @@ public class Graph {
         switch (type){
             case SPIRALIGHT:
                 model = creatGraph(SPIRALIGHT);
+                break;
+            case NOEL:
+                model = creatGraph(NOEL);
                 break;
             case SAGO:
                 model = creatGraph(SAGO);
@@ -62,17 +67,20 @@ public class Graph {
                 case TEST:
                     jsonObject = (JSONObject) parser.parse(new FileReader("test.json"));
                     break;
+                case NOEL:
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Noel.json"));
+                    break;
                 case SPIRALIGHT:
-                    jsonObject = (JSONObject) parser.parse(new FileReader("Spiralight2.json"));
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Spiralight.json"));
                     break;
                 case SAGO:
-                    jsonObject = (JSONObject) parser.parse(new FileReader("Sago2.json"));
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Sago.json"));
                     break;
                 case SHENTEL:
-                    jsonObject = (JSONObject) parser.parse(new FileReader("Shentel2.json"));
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Shentel.json"));
                     break;
                 case MISSOURI:
-                    jsonObject = (JSONObject) parser.parse(new FileReader("Missouri2.json"));
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Missouri.json"));
                     break;
             }
         }catch (Exception e){}
@@ -104,7 +112,7 @@ public class Graph {
                 long source = (long) obj.get("source");
                 long target = (long) obj.get("target");
                 String id = (String) obj.get("id");
-                double distance = (double) obj.get("distance");
+                long distance = (long) obj.get("distance");
 
                 if (source==i){
                     EdgeModel edgeModel = new EdgeModel(source,target,id,distance);
