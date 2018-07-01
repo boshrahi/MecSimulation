@@ -31,11 +31,11 @@ public class ParameterHandler {
     private int numOfApps;
     private  String numberOfUsersPerRegion;
     public double totalRequests;
-    private final double alpha = 0.8;
+    private final double alpha = 1;
     private final double cloudDelay = 400; //ms
     final double serviceDelayPerRegion = 0.01; //ms
-    private final double serviceRate = 20;
-    private final String capacityOfMec = "12"; //should be 10000
+    private final double serviceRate = 5;
+    private final String capacityOfMec = "12"; //should be 1000
     //------------------- demand of every request of app
     private final int demandOfRequest = 2;
     private String landaPerApp;
@@ -126,7 +126,7 @@ public class ParameterHandler {
                 SigmaModel model = sigmaList.get(sigmaIndex);
                 if (model.source == nodeIndex && model.target == whichRegion && model.app == appIndex) {
                     average = average + indicator * model.fraction * Double.valueOf(users_region[whichRegion])
-                            * getLandaPerApp(whichApp) * alpha;
+                            * getTotalLandaPerApp(appIndex,whichRegion,users_region) * alpha;
                 }
             }
         }
@@ -152,8 +152,8 @@ public class ParameterHandler {
     public double calculateRequestOfAppInRegionV(int whichApp, int whichRegion) {
         //R v-m
         String[] users_region = numberOfUsersPerRegion.split(",");
-        //double request = Long.valueOf(users_region[whichRegion]) * alpha * getLandaPerApp(whichApp); // or getTotalLandaPerApp()
-        double request = Long.valueOf(users_region[whichRegion]) * alpha * getTotalLandaPerApp(whichApp, whichRegion, users_region);
+        double request = Long.valueOf(users_region[whichRegion]) * alpha * getLandaPerApp(whichApp); // or getTotalLandaPerApp()
+        //double request = Long.valueOf(users_region[whichRegion]) * alpha * getTotalLandaPerApp(whichApp, whichRegion, users_region);
         return request;
 
     }
@@ -186,8 +186,7 @@ public class ParameterHandler {
         return total;
     }
 
-    public double calculateEdgeDelayForApp(int whichApp, long delay) {
-        int[] params = new int[numOfApps];
+    public double calculateEdgeDelayForApp(int whichApp, double delay) {
         return delayCalculator(whichApp, delay);
     }
 
@@ -200,7 +199,7 @@ public class ParameterHandler {
 
     }
 
-    private double distanceDelay(int fromRegion, int toRegion, int whichApp) {
+    public double distanceDelay(int fromRegion, int toRegion, int whichApp) {
         double edgeDelay = 0;
         for (int edgeIndex = 0; edgeIndex < graphModel.linkNum; edgeIndex++) {
             edgeDelay = calculateEdgeDelayForApp(whichApp, graphModel.edgeModelList.get(edgeIndex).distance);

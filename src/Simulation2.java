@@ -81,11 +81,11 @@ public class Simulation2 {
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
             for (int nodeVIndex = 0; nodeVIndex < graph.nodeNum; nodeVIndex++) {
                 for (int nodeUIndex = 0; nodeUIndex < graph.nodeNum; nodeUIndex++) {
-                    long distance = getDistanceOfV_U(nodeVIndex, nodeUIndex);
-                    T_M_VU = paramHandler.calculateEdgeDelayForApp(appIndex, distance);
+                    //double distance = paramHandler.distanceDelay(nodeVIndex,nodeUIndex,appIndex);
+                    T_M_VU = paramHandler.calculateNetworkDelayBetweenTwoRegions(nodeVIndex,nodeUIndex,appIndex,sigmaModels);
                     T_SERVICE_V = paramHandler.calculateServerDelay(nodeVIndex, sigmaModels);
                     AVG_M_V = paramHandler.calculateAvrgRequestArrivalRate(appIndex, nodeVIndex, sigmaModels, appIndex);
-                    time = time + T_M_VU + T_SERVICE_V * AVG_M_V;
+                    time = time + T_M_VU + (T_SERVICE_V * AVG_M_V);
 
                 }
             }
@@ -117,16 +117,6 @@ public class Simulation2 {
         return SIGMA;
     }
 
-    private long getDistanceOfV_U(int nodeVIndex, int nodeUIndex) {
-        for (int u = 0; u < graph.linkNum; u++) {
-            if (graph.edgeModelList.get(u).source == nodeVIndex && graph.edgeModelList.get(u).target == nodeUIndex ||
-                    graph.edgeModelList.get(u).target == nodeVIndex && graph.edgeModelList.get(u).source == nodeUIndex)
-                return graph.edgeModelList.get(u).distance;
-        }
-
-        return 0;
-    }
-
     /*
      * Procedure for assign all overall requests
      * */
@@ -136,7 +126,7 @@ public class Simulation2 {
         int[] vm_place = Arrays.stream(vm_place_str).mapToInt(Integer::parseInt).toArray();
         int choosen_Mec;
         int index_choosen;
-        double umega_min = Double.POSITIVE_INFINITY;
+        double umega_min;
         double Rm_v;
         double umega = 0;
         int INDEX = 0; // esharegar be placement
@@ -177,6 +167,7 @@ public class Simulation2 {
                     }
                     if (choosen_Mec != -1 && totalRequests > 0) {
                         Rm_v = Rm_v - 1;
+                        //System.out.println(Rm_v);
                         totalRequests--;
                         paramHandler.updateCapacityOfMEC(index_choosen, appIndex);
                         double total = paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeIndex);
@@ -185,6 +176,7 @@ public class Simulation2 {
                         //find sigma
                     } else {
                         Rm_v = 0;
+                        //System.out.println(Rm_v);
                         totalRequests--;
                     }
 
@@ -197,7 +189,7 @@ public class Simulation2 {
             }
 
 
-        }
+        }// end of while
         System.out.println(placement);
         return migratedRequests;
     }
@@ -210,7 +202,8 @@ public class Simulation2 {
         for (int sigmaIndex = 0; sigmaIndex < migratedRequests.size(); sigmaIndex++) {
             SigmaModel sigmaModel = migratedRequests.get(sigmaIndex);
             if (sigmaModel.source == nodeIndex && sigmaModel.target == selectedMEC && sigmaModel.app == appIndex) {
-                sigmaModel.fraction = sigmaModel.fraction + (1 / total);
+                migratedRequests.get(sigmaIndex).fraction = sigmaModel.fraction + (1 / total);
+               // if (migratedRequests.get(sigmaIndex).fraction >1) throw new IllegalArgumentException();
                 return migratedRequests;
             }
         }
@@ -337,9 +330,9 @@ public class Simulation2 {
             List<Integer> candidateMecSet = initializeCandidateMec(); // H-m
             candidateSetArray.add(candidateMecSet);
         }
-        ArrayList<HashSet<Integer>> placementCaseArray = new ArrayList<>();
+        ArrayList<List<Integer>> placementCaseArray = new ArrayList<>();
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
-            HashSet<Integer> placementSet = new HashSet<>(); // X-m
+            List<Integer> placementSet = new ArrayList<>(); // X-m
             placementCaseArray.add(placementSet);
         }
         ArrayList<Double> processingDelay = initializeProcessingDelay();
@@ -351,8 +344,12 @@ public class Simulation2 {
 
             for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
                 int choosenMec = searchForOneOptimalPlacement(candidateSetArray.get(appIndex), appIndex, sigmaList, serviceTimes);
+                //---------------
                 placementCaseArray.get(appIndex).add(choosenMec);
-                candidateSetArray.get(appIndex).remove(choosenMec);
+                //------------------
+                List<Integer> candidate = candidateSetArray.get(appIndex);
+                int index = candidate.indexOf(choosenMec);
+                candidateSetArray.get(appIndex).remove(index);
             }
             alreadyDeployedApps.add(appIndex);
             // assignment process 1
@@ -367,16 +364,14 @@ public class Simulation2 {
         //overall request assignments
         String placement = makePlacement(placementCaseArray);
         List<SigmaModel> sigmaModelList = assignmentProcedure(placement, alreadyDeployedApps);
-        double T_AVG = calculateTimeAverage(sigmaModelList);
-        return T_AVG;
+        return calculateTimeAverage(sigmaModelList);
     }
 
     /*
      * Procedure 2 in Paper
      * */
     private int searchForOneOptimalPlacement(List<Integer> candidateSet, int appIndex, List<SigmaModel> sigmaModels, List<Double> serviceTimes) {
-        double T_avg = 0;
-        double T_min = Double.POSITIVE_INFINITY;
+        List<Double> avrgs = new ArrayList<>(candidateSet.size());
         int choosenMec = -1;
 
         for (int u = 0; u < candidateSet.size(); u++) {
@@ -384,7 +379,7 @@ public class Simulation2 {
             double T_net = 0;
             if (sigmaModels.size() == 0) { // if the size is zero it means that it is first app
                 // i am not sure about Sigma status here. i set them all one
-                for (int sigmaV = 0; sigmaV < graph.nodeNum; sigmaV++) {
+                for (int sigmaV = 1; sigmaV < graph.nodeNum; sigmaV++) {
                     SigmaModel model = new SigmaModel();
                     model.source = sigmaV;
                     model.target = candidateSet.get(u);
@@ -400,22 +395,29 @@ public class Simulation2 {
                 T_net = T_net + paramHandler.calculateNetworkDelayBetweenTwoRegions(candidateSet.get(v), candidateSet.get(u), appIndex, sigmaModels);
             }
 
-            T_avg = T_net / requestOfApp + serviceTimes.get(u);
-            if (T_avg < T_min) {
-                T_min = T_avg;
+            double T_avg = T_net / requestOfApp + serviceTimes.get(u);
+
+            avrgs.add(u,T_avg);
+
+        }
+        double T_min = Double.POSITIVE_INFINITY;
+        for (int u = 0; u < candidateSet.size() ; u ++){
+            if (avrgs.get(u) < T_min) {
+                T_min = avrgs.get(u);
                 choosenMec = candidateSet.get(u);
             }
         }
+
         return choosenMec;
     }
 
     /*
      * make string of placement
      * */
-    private String makePlacement(ArrayList<HashSet<Integer>> placementCaseArray) {
+    private String makePlacement(ArrayList<List<Integer>> placementCaseArray) {
         String place = "";
         for (int p = 0; p < placementCaseArray.size(); p++) {
-            HashSet<Integer> hashSet = placementCaseArray.get(p);
+            List<Integer> hashSet = placementCaseArray.get(p);
             for (Integer vm_place : hashSet) {
                 place = place + vm_place + ",";
             }
@@ -445,4 +447,6 @@ public class Simulation2 {
         }
         return list;
     }
+
+    //------Clustering Enhanced Heuristic Placement ---------------------------------------
 }
