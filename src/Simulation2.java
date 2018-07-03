@@ -448,5 +448,12 @@ public class Simulation2 {
         return list;
     }
 
+    public double clusteringEnhancedHeuristicPlacementAlgorithm() {
+
+
+        return 0;
+    }
+
     //------Clustering Enhanced Heuristic Placement ---------------------------------------
+
 }

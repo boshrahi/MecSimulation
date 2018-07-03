@@ -8,6 +8,7 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
 import java.io.FileReader;
+import java.util.HashMap;
 
 /**
  * @author boshra
@@ -106,6 +107,7 @@ public class Graph {
 
         }
 
+        graphModel.prepareAdjacencyList();
         for (int i = 0; i < graphModel.nodeNum; i++){
             for (int j = 0; j < graphModel.linkNum ; j++){
                 JSONObject obj = (JSONObject) edgeArr.get(j);
@@ -116,12 +118,14 @@ public class Graph {
 
                 if (source==i){
                     EdgeModel edgeModel = new EdgeModel(source,target,id,distance);
+                    graphModel.addAdjacencyEdge((int)source,(int)target);
                     graphModel.edgeModelList.add(edgeModel);
                 }
 
             }
 
         }
+        HashMap<Integer , String> hashMap = graphModel.getNhops(0);
         return graphModel;
     }
 }
