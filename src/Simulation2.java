@@ -1,3 +1,4 @@
+import LAHPAmodel.LAHPAmodel;
 import cc.redberry.combinatorics.Combinatorics;
 import model.GraphModel;
 import model.SigmaModel;
@@ -82,7 +83,7 @@ public class Simulation2 {
             for (int nodeVIndex = 0; nodeVIndex < graph.nodeNum; nodeVIndex++) {
                 for (int nodeUIndex = 0; nodeUIndex < graph.nodeNum; nodeUIndex++) {
                     //double distance = paramHandler.distanceDelay(nodeVIndex,nodeUIndex,appIndex);
-                    T_M_VU = paramHandler.calculateNetworkDelayBetweenTwoRegions(nodeVIndex,nodeUIndex,appIndex,sigmaModels);
+                    T_M_VU = paramHandler.calculateNetworkDelayBetweenTwoRegions(nodeVIndex, nodeUIndex, appIndex, sigmaModels);
                     T_SERVICE_V = paramHandler.calculateServerDelay(nodeVIndex, sigmaModels);
                     AVG_M_V = paramHandler.calculateAvrgRequestArrivalRate(appIndex, nodeVIndex, sigmaModels, appIndex);
                     time = time + T_M_VU + (T_SERVICE_V * AVG_M_V);
@@ -203,7 +204,7 @@ public class Simulation2 {
             SigmaModel sigmaModel = migratedRequests.get(sigmaIndex);
             if (sigmaModel.source == nodeIndex && sigmaModel.target == selectedMEC && sigmaModel.app == appIndex) {
                 migratedRequests.get(sigmaIndex).fraction = sigmaModel.fraction + (1 / total);
-               // if (migratedRequests.get(sigmaIndex).fraction >1) throw new IllegalArgumentException();
+                // if (migratedRequests.get(sigmaIndex).fraction >1) throw new IllegalArgumentException();
                 return migratedRequests;
             }
         }
@@ -325,6 +326,12 @@ public class Simulation2 {
      * Algorithm 2 in paper
      * */
     public double latencyAwareHeuristicPlacementAlgorithm() {
+        LAHPAmodel lahpAModel = getLAHPAplacement();
+        List<SigmaModel> sigmaModelList = assignmentProcedure(lahpAModel.placement, lahpAModel.alreadyDeployedApps);
+        return calculateTimeAverage(sigmaModelList);
+    }
+
+    private LAHPAmodel getLAHPAplacement() {
         ArrayList<List<Integer>> candidateSetArray = new ArrayList<>();
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
             List<Integer> candidateMecSet = initializeCandidateMec(); // H-m
@@ -363,8 +370,7 @@ public class Simulation2 {
         }// end for app index
         //overall request assignments
         String placement = makePlacement(placementCaseArray);
-        List<SigmaModel> sigmaModelList = assignmentProcedure(placement, alreadyDeployedApps);
-        return calculateTimeAverage(sigmaModelList);
+        return new LAHPAmodel(placement, alreadyDeployedApps);
     }
 
     /*
@@ -397,11 +403,11 @@ public class Simulation2 {
 
             double T_avg = T_net / requestOfApp + serviceTimes.get(u);
 
-            avrgs.add(u,T_avg);
+            avrgs.add(u, T_avg);
 
         }
         double T_min = Double.POSITIVE_INFINITY;
-        for (int u = 0; u < candidateSet.size() ; u ++){
+        for (int u = 0; u < candidateSet.size(); u++) {
             if (avrgs.get(u) < T_min) {
                 T_min = avrgs.get(u);
                 choosenMec = candidateSet.get(u);
@@ -448,12 +454,82 @@ public class Simulation2 {
         return list;
     }
 
+    //------Clustering Enhanced Heuristic Placement ---------------------------------------
+    /*
+     *
+     * Require G k N C M alpha L
+     * Ensure T_min X_tild
+     *
+     * */
     public double clusteringEnhancedHeuristicPlacementAlgorithm() {
+        LAHPAmodel lahpAmodel = getLAHPAplacement();
+        for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
+            String[] appPlace = getPlacementOfApp(appIndex, lahpAmodel.placement);
+            List<ArrayList<Integer>> Y_cluster = clusteringProcedure(appPlace);
+            for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
+                double T_MIN = Double.POSITIVE_INFINITY;
 
+            }
+        }
 
         return 0;
     }
 
-    //------Clustering Enhanced Heuristic Placement ---------------------------------------
+    private String[] getPlacementOfApp(int appIndex, String placement) {
+
+        String[] place = placement.split(",");
+        String[] a = new String[numOfVRCPerApp];
+        int index = appIndex * numOfVRCPerApp;
+        for (int i = 0; i < numOfVRCPerApp; i++) {
+            a[i] = place[index];
+            index++;
+        }
+        return a;
+    }
+
+    /*
+    *
+    * Proc #3 of paper that find cluster of each VRCs
+    *
+    * */
+    private List<ArrayList<Integer>> clusteringProcedure(String[] placement) {
+
+        ArrayList<Integer> Y_tild = new ArrayList<>();
+        List<ArrayList<Integer>> setOfClusters = new ArrayList<>();
+
+        for (int vm = 0; vm < numOfVRCPerApp; vm++) {
+            ArrayList<Integer> Y_tild_vm = new ArrayList<>();
+            setOfClusters.add(Y_tild_vm);
+        }
+        graph.getNhops(0); // for test and initial Maxlevel
+        for (int l_hop = 1; l_hop <= graph.maxLevel; l_hop++) {
+            for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
+
+                HashMap<Integer, String> hops = graph.getNhops(Integer.valueOf(placement[vmIndex]));
+                String[] vm_of_level_l = hops.get(l_hop).split(",");
+
+                for (int q = 0; q < vm_of_level_l.length; q++) {
+                    if (!vm_of_level_l[q].equals("")) {
+                        int q_server = Integer.valueOf(vm_of_level_l[q]);
+                        if (!Y_tild.contains(q_server) && !isPlacementHaveQ(q_server, placement)) {
+                            setOfClusters.get(vmIndex).add(q_server);
+                            Y_tild.add(q_server);
+                        }
+                    }
+                }
+            }
+
+        }
+
+        return setOfClusters;
+    }
+
+    private boolean isPlacementHaveQ(int q_server, String[] placement) {
+        for (int i = 0; i < placement.length; i++) {
+            if (placement[i].equals(String.valueOf(q_server))) return true;
+        }
+        return false;
+    }
+
 
 }
