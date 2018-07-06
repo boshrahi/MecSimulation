@@ -1,4 +1,4 @@
-import LAHPAmodel.LAHPAmodel;
+import model.LAHPAmodel;
 import cc.redberry.combinatorics.Combinatorics;
 import model.GraphModel;
 import model.SigmaModel;
@@ -65,7 +65,7 @@ public class Simulation2 {
                 finalPLACEMENT = placement;
             }
         }
-        System.out.println(finalPLACEMENT);
+        System.out.println("Optiaml Placement : " + finalPLACEMENT);
         return T_MIN;
     }
 
@@ -84,9 +84,17 @@ public class Simulation2 {
                 for (int nodeUIndex = 0; nodeUIndex < graph.nodeNum; nodeUIndex++) {
                     //double distance = paramHandler.distanceDelay(nodeVIndex,nodeUIndex,appIndex);
                     T_M_VU = paramHandler.calculateNetworkDelayBetweenTwoRegions(nodeVIndex, nodeUIndex, appIndex, sigmaModels);
-                    T_SERVICE_V = paramHandler.calculateServerDelay(nodeVIndex, sigmaModels);
-                    AVG_M_V = paramHandler.calculateAvrgRequestArrivalRate(appIndex, nodeVIndex, sigmaModels, appIndex);
-                    time = time + T_M_VU + (T_SERVICE_V * AVG_M_V);
+                        T_SERVICE_V = paramHandler.calculateServerDelay(nodeVIndex, sigmaModels);
+                        AVG_M_V = paramHandler.calculateAvrgRequestArrivalRate(appIndex, nodeVIndex, sigmaModels, appIndex);
+                        time = time + T_M_VU + (T_SERVICE_V * AVG_M_V);
+
+
+                    if (T_M_VU < 0 || T_SERVICE_V < 0 || AVG_M_V < 0) {
+                        System.out.println("T_M_VU :" + T_M_VU);
+                        System.out.println("T_SERVICE_V :" + T_SERVICE_V);
+                        System.out.println("AVG_M_V :" + AVG_M_V);
+                        throw new IllegalArgumentException();
+                    }
 
                 }
             }
@@ -94,6 +102,7 @@ public class Simulation2 {
             for (int nodeVIndex = 0; nodeVIndex < graph.nodeNum; nodeVIndex++) {
                 for (int nodeUIndex = 0; nodeUIndex < graph.nodeNum; nodeUIndex++) {
                     SIGMA = getSigmaV_U_M(nodeVIndex, nodeUIndex, appIndex, sigmaModels);
+                    if (SIGMA < 0 || SIGMA > 1) throw new IllegalArgumentException();
                     time = time + T_CLOUD_M * (SIGMA) * paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeVIndex);
                 }
 
@@ -143,6 +152,7 @@ public class Simulation2 {
                     umega_min = Double.POSITIVE_INFINITY;
                     Rm_v = 0;
                     Rm_v = paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeIndex);
+
                     for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
                         int selectedMEC = vm_place[INDEX + vmIndex];
 
@@ -168,17 +178,21 @@ public class Simulation2 {
                     }
                     if (choosen_Mec != -1 && totalRequests > 0) {
                         Rm_v = Rm_v - 1;
-                        //System.out.println(Rm_v);
                         totalRequests--;
+
                         paramHandler.updateCapacityOfMEC(index_choosen, appIndex);
                         double total = paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeIndex);
-                        if (nodeIndex != choosen_Mec)
-                            migratedRequests = updateSigmaModelU_V(migratedRequests, nodeIndex, choosen_Mec, total, appIndex);
+                        //if (nodeIndex != choosen_Mec)
+                        migratedRequests = updateSigmaModelU_V(migratedRequests, nodeIndex, choosen_Mec, total, appIndex);
+
+                        //System.out.println("total req :" + totalRequests);
+                        //System.out.println("Region total : "+total);
                         //find sigma
-                    } else {
+                    } else if (totalRequests > 0) {
                         Rm_v = 0;
-                        //System.out.println(Rm_v);
                         totalRequests--;
+                        //System.out.println(Rm_v);
+                        //System.out.println("total req :" + totalRequests);
                     }
 
 
@@ -191,7 +205,7 @@ public class Simulation2 {
 
 
         }// end of while
-        System.out.println(placement);
+        System.out.println("Assignment Procedure Placement :" + placement);
         return migratedRequests;
     }
 
@@ -200,11 +214,15 @@ public class Simulation2 {
      * */
     private List<SigmaModel> updateSigmaModelU_V(List<SigmaModel> migratedRequests, int nodeIndex, int selectedMEC, double total, int appIndex) {
 
+        boolean isTest = false;
         for (int sigmaIndex = 0; sigmaIndex < migratedRequests.size(); sigmaIndex++) {
             SigmaModel sigmaModel = migratedRequests.get(sigmaIndex);
-            if (sigmaModel.source == nodeIndex && sigmaModel.target == selectedMEC && sigmaModel.app == appIndex) {
-                migratedRequests.get(sigmaIndex).fraction = sigmaModel.fraction + (1 / total);
-                // if (migratedRequests.get(sigmaIndex).fraction >1) throw new IllegalArgumentException();
+            double frac = sigmaModel.fraction + (1 / total);
+            if (sigmaModel.source == nodeIndex && sigmaModel.target == selectedMEC && sigmaModel.app == appIndex && frac <= 1) {
+                sigmaModel.fraction = frac;
+                //if (migratedRequests.get(sigmaIndex).fraction > 1) throw new IllegalArgumentException();
+                return migratedRequests;
+            }else if (sigmaModel.source == nodeIndex && sigmaModel.target == selectedMEC && sigmaModel.app == appIndex && sigmaModel.fraction == 1){
                 return migratedRequests;
             }
         }
@@ -463,17 +481,57 @@ public class Simulation2 {
      * */
     public double clusteringEnhancedHeuristicPlacementAlgorithm() {
         LAHPAmodel lahpAmodel = getLAHPAplacement();
+        List<ArrayList<Integer>> X_total = new ArrayList<>();
+        HashSet<Integer> alreadyDeployedApp = new HashSet<Integer>();
+        String X_total_str = "";
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
+            ArrayList<Integer> X_Tild = new ArrayList<>(); // each for one app
+            String X_tild_str = "";
+            alreadyDeployedApp = new HashSet<Integer>();
             String[] appPlace = getPlacementOfApp(appIndex, lahpAmodel.placement);
             List<ArrayList<Integer>> Y_cluster = clusteringProcedure(appPlace);
             for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
                 double T_MIN = Double.POSITIVE_INFINITY;
+                int choosenMec = -1;
+                ArrayList<Integer> cluster = Y_cluster.get(vmIndex);
+                for (int VRC : cluster) {
+                    double T_AVG = calculateTimeAverage(makeSigmaModelListForCluster(VRC, cluster, appIndex));
+                    if (T_AVG < T_MIN) {
+                        T_MIN = T_AVG;
+                        choosenMec = VRC;
+                    }
+                }
+                X_Tild.add(choosenMec);
+
+                if (vmIndex == numOfVRCPerApp - 1) X_tild_str = X_tild_str + choosenMec;
+                else X_tild_str = X_tild_str + choosenMec + ",";
 
             }
-        }
+            X_total.add(X_Tild); // X_tild_i_m
+            X_total_str = X_total_str + X_tild_str + ",";
 
-        return 0;
+            alreadyDeployedApp.add(appIndex);
+        }
+        System.out.println("Clustering placement : " + X_total_str);
+        List<SigmaModel> list = assignmentProcedure(X_total_str, alreadyDeployedApp);
+        return calculateTimeAverage(list);
+
     }
+
+    private List<SigmaModel> makeSigmaModelListForCluster(int vrc, ArrayList<Integer> cluster, int appIndex) {
+        List<SigmaModel> list = new ArrayList<>();
+        for (int nodeIndex = 0; nodeIndex < cluster.size(); nodeIndex++) {
+            SigmaModel sigmaModel = new SigmaModel();
+            sigmaModel.fraction = 1;
+            sigmaModel.source = cluster.get(nodeIndex);
+            sigmaModel.target = vrc;
+            sigmaModel.app = appIndex;
+            //if (!(sigmaModel.source == sigmaModel.target))
+            list.add(sigmaModel);
+        }
+        return list;
+    }
+
 
     private String[] getPlacementOfApp(int appIndex, String placement) {
 
@@ -488,10 +546,10 @@ public class Simulation2 {
     }
 
     /*
-    *
-    * Proc #3 of paper that find cluster of each VRCs
-    *
-    * */
+     *
+     * Proc #3 of paper that find cluster of each VRCs
+     *
+     * */
     private List<ArrayList<Integer>> clusteringProcedure(String[] placement) {
 
         ArrayList<Integer> Y_tild = new ArrayList<>();
@@ -499,6 +557,7 @@ public class Simulation2 {
 
         for (int vm = 0; vm < numOfVRCPerApp; vm++) {
             ArrayList<Integer> Y_tild_vm = new ArrayList<>();
+            Y_tild_vm.add(Integer.valueOf(placement[vm]));
             setOfClusters.add(Y_tild_vm);
         }
         graph.getNhops(0); // for test and initial Maxlevel

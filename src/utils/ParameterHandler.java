@@ -34,8 +34,8 @@ public class ParameterHandler {
     private final double alpha = 1;
     private final double cloudDelay = 400; //ms
     final double serviceDelayPerRegion = 0.01; //ms
-    private final double serviceRate = 5;
-    private final String capacityOfMec = "12"; //should be 1000
+    private final double serviceRate = 57;
+    private final String capacityOfMec = "114"; //should be 1000
     //------------------- demand of every request of app
     private final int demandOfRequest = 2;
     private String landaPerApp;
@@ -138,7 +138,9 @@ public class ParameterHandler {
         double A_region_V = 0;
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
             A_region_V = A_region_V + calculateAvrgRequestArrivalRate(appIndex, whichRegion, list, appIndex);
+            //System.out.println("A_region_V : " + A_region_V);
         }
+        if (serviceRate < A_region_V) throw new IllegalArgumentException();
         return 1 / (serviceRate - A_region_V);
     }
 
@@ -192,8 +194,11 @@ public class ParameterHandler {
 
     public double calculateNetworkDelayBetweenTwoRegions(int fromRegion, int toRegion, int whichApp, List<SigmaModel> sigmaModels) { //Tm v--->u
         double time = 0;
-        for (int sigmaIndex = 0; sigmaIndex < sigmaModels.size(); sigmaIndex++) {
-            time = sigmaModels.get(sigmaIndex).fraction * calculateRequestOfAppInRegionV(whichApp, fromRegion) * distanceDelay(fromRegion, toRegion, whichApp);
+        for (int sigma = 0 ; sigma < sigmaModels.size() ; sigma ++){
+            SigmaModel model = sigmaModels.get(sigma);
+            if (model.source == fromRegion && model.target == toRegion && model.app == whichApp ){
+                return model.fraction * calculateRequestOfAppInRegionV(whichApp, fromRegion) * distanceDelay(fromRegion, toRegion, whichApp);
+            }
         }
         return time;
 

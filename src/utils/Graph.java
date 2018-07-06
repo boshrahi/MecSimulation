@@ -17,7 +17,6 @@ import java.util.HashMap;
  * utils.Graph 2 : Sago                     model.NodeModel = 18 Link = 17
  * utils.Graph 3 : Shentel                  model.NodeModel = 28 Link = 35
  * utils.Graph 4 : Missouri                 model.NodeModel = 67 Link = 83
- *
  */
 
 public class Graph {
@@ -30,9 +29,9 @@ public class Graph {
     public GraphModel model;
 
 
-    public Graph(String type){
+    public Graph(String type) {
         model = new GraphModel();
-        switch (type){
+        switch (type) {
             case SPIRALIGHT:
                 model = creatGraph(SPIRALIGHT);
                 break;
@@ -55,7 +54,8 @@ public class Graph {
 
 
     }
-    public GraphModel getGraphModel(){
+
+    public GraphModel getGraphModel() {
         return model;
     }
 
@@ -84,7 +84,8 @@ public class Graph {
                     jsonObject = (JSONObject) parser.parse(new FileReader("Missouri.json"));
                     break;
             }
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
         GraphModel graphModel = parseJsonFile(jsonObject);
         return graphModel;
     }
@@ -108,24 +109,24 @@ public class Graph {
         }
 
         graphModel.prepareAdjacencyList();
-        for (int i = 0; i < graphModel.nodeNum; i++){
-            for (int j = 0; j < graphModel.linkNum ; j++){
+        for (int i = 0; i < graphModel.nodeNum; i++) {
+            for (int j = 0; j < graphModel.linkNum; j++) {
                 JSONObject obj = (JSONObject) edgeArr.get(j);
                 long source = (long) obj.get("source");
                 long target = (long) obj.get("target");
                 String id = (String) obj.get("id");
                 long distance = (long) obj.get("distance");
 
-                if (source==i){
-                    EdgeModel edgeModel = new EdgeModel(source,target,id,distance);
-                    graphModel.addAdjacencyEdge((int)source,(int)target);
+                if (source == i) {
+                    EdgeModel edgeModel = new EdgeModel(source, target, id, distance);
+                    graphModel.addAdjacencyEdge((int) source, (int) target);
                     graphModel.edgeModelList.add(edgeModel);
                 }
 
             }
 
         }
-        HashMap<Integer , String> hashMap = graphModel.getNhops(0);
+
         return graphModel;
     }
 }
