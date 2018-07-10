@@ -35,7 +35,7 @@ public class ParameterHandler {
     private final double cloudDelay = 400; //ms
     final double serviceDelayPerRegion = 0.01; //ms
     private final double serviceRate = 57;
-    private final String capacityOfMec = "114"; //should be 1000
+    private final String capacityOfMec = "50"; //should be 1000
     //------------------- demand of every request of app
     private final int demandOfRequest = 2;
     private String landaPerApp;
@@ -194,10 +194,11 @@ public class ParameterHandler {
 
     public double calculateNetworkDelayBetweenTwoRegions(int fromRegion, int toRegion, int whichApp, List<SigmaModel> sigmaModels) { //Tm v--->u
         double time = 0;
+        long distance = graphModel.dijkstra(graphModel.makeGraphMatrix(),fromRegion).shorestDist[toRegion];
         for (int sigma = 0 ; sigma < sigmaModels.size() ; sigma ++){
             SigmaModel model = sigmaModels.get(sigma);
             if (model.source == fromRegion && model.target == toRegion && model.app == whichApp ){
-                return model.fraction * calculateRequestOfAppInRegionV(whichApp, fromRegion) * distanceDelay(fromRegion, toRegion, whichApp);
+                return model.fraction * calculateRequestOfAppInRegionV(whichApp, fromRegion) * distance;
             }
         }
         return time;

@@ -115,14 +115,16 @@ class Simulation {
                     if (isAnyContainerMecHasCapacity()) {
 
                         ShortestPath shortestPath = getDelayForRequest(graph.nodeModelList.get(nodeIndex), getCorrectVRCs(vrcs));
-                        W = W + shortestPath.pathLen;
+                        //W = W + shortestPath.pathLen;
+                        //TODO uncomment above line for ShortestPath class
 
 
                             // V0 vali roye MEC1
                         // long correctMec =  vrCnodeModel.map.get((int) shortestPath.id);
 
 
-                        capacityOfMec[(int) shortestPath.id] = capacityOfMec[(int) shortestPath.id] - demandOfRequest;
+                       // capacityOfMec[(int) shortestPath.id] = capacityOfMec[(int) shortestPath.id] - demandOfRequest;
+                        //TODO uncomment above line for ShortestPath class
                     } else {
                         cloud++;
                         W = W + 100; // 100 ms for cloud
@@ -179,8 +181,9 @@ class Simulation {
             for (int vm = 0 ; vm < vrcs.size() ; vm ++){
                 int vm_place = Math.toIntExact(vrcs.get(vm));
                 if (vm_place == node_id && capacityOfMec[vm_place] > 0){
-                    shortestPath.pathLen = 0;
-                    shortestPath.id = node_id;
+                   // shortestPath.pathLen = 0;
+                    //shortestPath.id = node_id;
+                    //TODO uncomment above line for ShortestPath class
                     return shortestPath;
                 }
             }
@@ -188,12 +191,14 @@ class Simulation {
                 long source = graph.edgeModelList.get(index).source;
                 long target = graph.edgeModelList.get(index).target;
                 if (source == node_id && vrcs.contains(target)) {
-                    shortestPath.id = target;
-                    shortestPath.pathLen = graph.edgeModelList.get(index).distance;
+                   // shortestPath.id = target;
+                   // shortestPath.pathLen = graph.edgeModelList.get(index).distance;
+                    //TODO uncomment above line for ShortestPath class
                     return shortestPath;
                 } else if (target == node_id && vrcs.contains(source)) {
-                    shortestPath.id = source;
-                    shortestPath.pathLen = graph.edgeModelList.get(index).distance;
+                    //shortestPath.id = source;
+                   // shortestPath.pathLen = graph.edgeModelList.get(index).distance;
+                    //TODO uncomment above line for ShortestPath class
                     return shortestPath;
                 }
 
@@ -259,8 +264,9 @@ class Simulation {
             }
         }
         ShortestPath shortestPath = new ShortestPath();
-        shortestPath.id = Long.valueOf(choosenVertex);
-        shortestPath.pathLen = min;
+        //shortestPath.id = Long.valueOf(choosenVertex);
+        //shortestPath.pathLen = min;
+        //TODO uncomment above line for ShortestPath class
 
         return shortestPath;
     }

@@ -1,8 +1,5 @@
-import model.LAHPAmodel;
+import model.*;
 import cc.redberry.combinatorics.Combinatorics;
-import model.GraphModel;
-import model.SigmaModel;
-import model.VRCnodeModel;
 import utils.Graph;
 import utils.ParameterHandler;
 
@@ -84,10 +81,9 @@ public class Simulation2 {
                 for (int nodeUIndex = 0; nodeUIndex < graph.nodeNum; nodeUIndex++) {
                     //double distance = paramHandler.distanceDelay(nodeVIndex,nodeUIndex,appIndex);
                     T_M_VU = paramHandler.calculateNetworkDelayBetweenTwoRegions(nodeVIndex, nodeUIndex, appIndex, sigmaModels);
-                        T_SERVICE_V = paramHandler.calculateServerDelay(nodeVIndex, sigmaModels);
-                        AVG_M_V = paramHandler.calculateAvrgRequestArrivalRate(appIndex, nodeVIndex, sigmaModels, appIndex);
-                        time = time + T_M_VU + (T_SERVICE_V * AVG_M_V);
-
+                    T_SERVICE_V = paramHandler.calculateServerDelay(nodeVIndex, sigmaModels);
+                    AVG_M_V = paramHandler.calculateAvrgRequestArrivalRate(appIndex, nodeVIndex, sigmaModels, appIndex);
+                    time = time + T_M_VU + (T_SERVICE_V * AVG_M_V);
 
                     if (T_M_VU < 0 || T_SERVICE_V < 0 || AVG_M_V < 0) {
                         System.out.println("T_M_VU :" + T_M_VU);
@@ -95,7 +91,6 @@ public class Simulation2 {
                         System.out.println("AVG_M_V :" + AVG_M_V);
                         throw new IllegalArgumentException();
                     }
-
                 }
             }
             T_CLOUD_M = paramHandler.calculateDelayOfCloudPerApp(appIndex);
@@ -152,28 +147,30 @@ public class Simulation2 {
                     umega_min = Double.POSITIVE_INFINITY;
                     Rm_v = 0;
                     Rm_v = paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeIndex);
-
+                    ShortestPath shortestPath = graph.dijkstra(graph.makeGraphMatrix(),nodeIndex);
                     for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
                         int selectedMEC = vm_place[INDEX + vmIndex];
-
+                        long dist = shortestPath.shorestDist[selectedMEC];
                         umega = 0;
                         int state = -1;
                         boolean CanChangeChooseMec = false;
-                        for (int edgeIndex = 0; edgeIndex < graph.linkNum; edgeIndex++) {
-                            state = paramHandler.isEdgeVtoN(nodeIndex, selectedMEC, edgeIndex);
-                            if (state != -1) {
-                                CanChangeChooseMec = true;
-                                umega = umega + paramHandler.calculateEdgeDelayForApp(appIndex,
-                                        graph.edgeModelList.get(edgeIndex).distance) * state;
-                            }
-                        }
+                        umega = umega + paramHandler.calculateEdgeDelayForApp(appIndex, dist);
+
+//                        for (int edgeIndex = 0; edgeIndex < graph.linkNum; edgeIndex++) {
+//                            state = paramHandler.isEdgeVtoN(nodeIndex, selectedMEC, edgeIndex);
+//                            if (state != -1) {
+//                                CanChangeChooseMec = true;
+//                                umega = umega + paramHandler.calculateEdgeDelayForApp(appIndex,
+//                                        graph.edgeModelList.get(edgeIndex).distance) * state;
+//                            }
+//                        }
                         if (paramHandler.getCapacityOfMEC(vmIndex, appIndex) > 0 && umega < umega_min) {
-                            if (CanChangeChooseMec) {
+//                            if (CanChangeChooseMec) {
                                 choosen_Mec = selectedMEC;
                                 index_choosen = vmIndex;
                                 umega_min = umega;
 
-                            }
+//                            }
                         }
                     }
                     if (choosen_Mec != -1 && totalRequests > 0) {
@@ -420,7 +417,6 @@ public class Simulation2 {
             }
 
             double T_avg = T_net / requestOfApp + serviceTimes.get(u);
-
             avrgs.add(u, T_avg);
 
         }
