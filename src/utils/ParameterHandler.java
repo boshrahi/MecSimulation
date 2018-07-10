@@ -29,12 +29,12 @@ public class ParameterHandler {
     private int numOfVRCPerApp;
     private int numOfUsers;
     private int numOfApps;
-    private  String numberOfUsersPerRegion;
+    private String numberOfUsersPerRegion;
     public double totalRequests;
     private final double alpha = 1;
     private final double cloudDelay = 400; //ms
     final double serviceDelayPerRegion = 0.01; //ms
-    private final double serviceRate = 57;
+    private final double serviceRate = 320; // 57
     private final String capacityOfMec = "50"; //should be 1000
     //------------------- demand of every request of app
     private final int demandOfRequest = 2;
@@ -119,14 +119,14 @@ public class ParameterHandler {
         double average = 0;
         String[] users_region = numberOfUsersPerRegion.split(",");
         for (int nodeIndex = 0; nodeIndex < graphModel.nodeNum; nodeIndex++) {
-            if (vm_placement.contains(String.valueOf(whichRegion))) {
+            if (isPlacementHaveQ(whichRegion,vm_placement.split(","))) {
                 indicator = 1;
             }
             for (int sigmaIndex = 0; sigmaIndex < sigmaList.size(); sigmaIndex++) {
                 SigmaModel model = sigmaList.get(sigmaIndex);
                 if (model.source == nodeIndex && model.target == whichRegion && model.app == appIndex) {
                     average = average + indicator * model.fraction * Double.valueOf(users_region[whichRegion])
-                            * getTotalLandaPerApp(appIndex,whichRegion,users_region) * alpha;
+                            * getTotalLandaPerApp(appIndex, whichRegion, users_region) * alpha;
                 }
             }
         }
@@ -140,7 +140,8 @@ public class ParameterHandler {
             A_region_V = A_region_V + calculateAvrgRequestArrivalRate(appIndex, whichRegion, list, appIndex);
             //System.out.println("A_region_V : " + A_region_V);
         }
-        if (serviceRate < A_region_V) throw new IllegalArgumentException();
+        if (serviceRate <= A_region_V) throw new IllegalArgumentException();
+        if (A_region_V == 0 ) return 0;
         return 1 / (serviceRate - A_region_V);
     }
 
@@ -160,17 +161,17 @@ public class ParameterHandler {
 
     }
 
-    private int getLandaPerApp(int whichApp) {
+    private double getLandaPerApp(int whichApp) {
         // Landa
         String[] landa_app = landaPerApp.split(",");
-        int app_landa = Integer.valueOf(landa_app[whichApp]);
+        double app_landa = Double.parseDouble(landa_app[whichApp]);
         return app_landa;
     }
 
-    private long getTotalLandaPerApp(int whichApp, int whichRegion, String[] users_region) {
+    private double getTotalLandaPerApp(int whichApp, int whichRegion, String[] users_region) {
         // Landa
         String[] landa_app = landaPerApp.split(",");
-        int app_landa = Integer.valueOf(landa_app[whichApp]);
+        double app_landa = Double.valueOf(landa_app[whichApp]);
         long user_number_in_region = Long.valueOf(users_region[whichRegion]);
         return app_landa * user_number_in_region;
     }
@@ -188,16 +189,26 @@ public class ParameterHandler {
         return total;
     }
 
+    public double calculateRequestOfApp(int whichApp) {
+        String[] users_region = numberOfUsersPerRegion.split(",");
+        double total = 0;
+        for (int index = 0; index < users_region.length; index++) {
+            total = total + calculateRequestOfAppInRegionV(whichApp
+                    , index);
+        }
+        return total;
+    }
+
     public double calculateEdgeDelayForApp(int whichApp, double delay) {
         return delayCalculator(whichApp, delay);
     }
 
     public double calculateNetworkDelayBetweenTwoRegions(int fromRegion, int toRegion, int whichApp, List<SigmaModel> sigmaModels) { //Tm v--->u
         double time = 0;
-        long distance = graphModel.dijkstra(graphModel.makeGraphMatrix(),fromRegion).shorestDist[toRegion];
-        for (int sigma = 0 ; sigma < sigmaModels.size() ; sigma ++){
+        long distance = graphModel.dijkstra(graphModel.makeGraphMatrix(), fromRegion).shorestDist[toRegion];
+        for (int sigma = 0; sigma < sigmaModels.size(); sigma++) {
             SigmaModel model = sigmaModels.get(sigma);
-            if (model.source == fromRegion && model.target == toRegion && model.app == whichApp ){
+            if (model.source == fromRegion && model.target == toRegion && model.app == whichApp) {
                 return model.fraction * calculateRequestOfAppInRegionV(whichApp, fromRegion) * distance;
             }
         }
@@ -222,7 +233,7 @@ public class ParameterHandler {
 //        for (int i = 0 ; i < numOfApps ; i ++){
 //            landaPerApp = landaPerApp + (rand.nextInt(3) +1) + ",";
 //        }
-        String landaPerApp = "2,3"; // felan 2 ta app darim
+        String landaPerApp = "2,3"; // felan 2 ta app darim 2 3
         return landaPerApp;
     }
 
@@ -238,5 +249,10 @@ public class ParameterHandler {
 
     }
 
-
+    public boolean isPlacementHaveQ(int q_server, String[] placement) {
+        for (int i = 0; i < placement.length; i++) {
+            if (placement[i].equals(String.valueOf(q_server))) return true;
+        }
+        return false;
+    }
 }
