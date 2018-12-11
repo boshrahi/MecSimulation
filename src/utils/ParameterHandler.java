@@ -31,7 +31,7 @@ public class ParameterHandler {
     private int numOfApps;
     private String numberOfUsersPerRegion;
     public long totalRequests;
-    private final double alpha = 0.8;
+    private final double alpha = 1;
     private final double cloudDelay = 400; //ms
     final double serviceDelayPerRegion = 0.01; //ms
     private final double serviceRate = 1001; // 57

@@ -10,9 +10,7 @@ public class Main {
 
         double T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
         System.out.println("T_MIN_LAHPA : ------>  " + T_MIN_LAHPA);
-//
-//
-//
+
         double T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
         System.out.println("T_MIN_CEHPA : ------>  " + T_MIN_CEHPA);
 //        long time = System.currentTimeMillis();
