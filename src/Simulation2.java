@@ -3,6 +3,7 @@ import cc.redberry.combinatorics.Combinatorics;
 import utils.Graph;
 import utils.ParameterHandler;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 /**
@@ -59,6 +60,7 @@ public class Simulation2 {
             T_AVG = calculateTimeAverage(sigmaModels);
             if (T_AVG <= T_MIN) {
                 T_MIN = T_AVG;
+                System.out.println(T_MIN);
                 finalPLACEMENT = placement;
             }
         }
@@ -71,48 +73,54 @@ public class Simulation2 {
      * */
     private double calculateTimeAverage(List<SigmaModel> sigmaModels) {
         double time = 0;
-        double T_M_VU = 0;
-        double T_SERVICE_V = 0;
-        double AVG_M_V = 0;
-        double T_CLOUD_M = 0;
-        double SIGMA = 0;
+        double T_CLOUD_M;
+        double T_SERVICE_V ;
+        double AVG_M_V ;
+
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
+            double SIGMA = 0;
+            double t = 0;
             for (int nodeVIndex = 0; nodeVIndex < graph.nodeNum; nodeVIndex++) {
+                double T_M_VU = 0;
+
                 for (int nodeUIndex = 0; nodeUIndex < graph.nodeNum; nodeUIndex++) {
                     //double distance = paramHandler.distanceDelay(nodeVIndex,nodeUIndex,appIndex);
-                    T_M_VU = paramHandler.calculateNetworkDelayBetweenTwoRegions(nodeVIndex, nodeUIndex, appIndex, sigmaModels);
-                    T_SERVICE_V = paramHandler.calculateServerDelay(nodeVIndex, sigmaModels);
-                    AVG_M_V = paramHandler.calculateAvrgRequestArrivalRate(appIndex, nodeVIndex, sigmaModels, appIndex);
-                    time = time + T_M_VU + (T_SERVICE_V * AVG_M_V);
-                    if (time == Double.POSITIVE_INFINITY) {
-                        System.out.println(T_M_VU);
-                        System.out.println(T_SERVICE_V);
-                        System.out.println(AVG_M_V);
-                        throw new IllegalArgumentException();
-                    }
+                    T_M_VU = T_M_VU + paramHandler.calculateNetworkDelayBetweenTwoRegions(nodeVIndex, nodeUIndex, appIndex, sigmaModels);
+                }
+                T_SERVICE_V = paramHandler.calculateServerDelay(nodeVIndex, sigmaModels);
+                AVG_M_V = paramHandler.calculateAvrgRequestArrivalRate(appIndex, nodeVIndex, sigmaModels);
+                time = time + T_M_VU + (T_SERVICE_V * AVG_M_V);
+                if (time == Double.POSITIVE_INFINITY) {
+                    System.out.println(T_M_VU);
+                    System.out.println(T_SERVICE_V);
+                    System.out.println(AVG_M_V);
+                    throw new IllegalArgumentException();
+                }
 
-                    if (T_M_VU < 0 || T_SERVICE_V < 0 || AVG_M_V < 0) {
-                        System.out.println("T_M_VU :" + T_M_VU);
-                        System.out.println("T_SERVICE_V :" + T_SERVICE_V);
-                        System.out.println("AVG_M_V :" + AVG_M_V);
-                        throw new IllegalArgumentException();
-                    }
+                if (T_M_VU < 0 || T_SERVICE_V < 0 || AVG_M_V < 0) {
+                    System.out.println("T_M_VU :" + T_M_VU);
+                    System.out.println("T_SERVICE_V :" + T_SERVICE_V);
+                    System.out.println("AVG_M_V :" + AVG_M_V);
+                    throw new IllegalArgumentException();
                 }
             }
             T_CLOUD_M = paramHandler.calculateDelayOfCloudPerApp(appIndex);
+
             for (int nodeVIndex = 0; nodeVIndex < graph.nodeNum; nodeVIndex++) {
                 for (int nodeUIndex = 0; nodeUIndex < graph.nodeNum; nodeUIndex++) {
-                    SIGMA = getSigmaV_U_M(nodeVIndex, nodeUIndex, appIndex, sigmaModels);
-                    if (SIGMA < 0 || SIGMA > 1) {
-                        for (int i = 0; i < sigmaModels.size(); i++) {
-                            System.out.println(sigmaModels.get(i).fraction);
-                        }
-                        throw new IllegalArgumentException();
+                    SIGMA = SIGMA + getSigmaV_U_M(nodeVIndex, nodeUIndex, appIndex, sigmaModels);
+                    if (SIGMA > 1) {
+//                        for (int i = 0; i < sigmaModels.size(); i++) {
+//                            System.out.println(sigmaModels.get(i).fraction);
+//                            System.out.println(SIGMA);
+//                        }
+                        SIGMA = 1;
                     }
-                    time = time + T_CLOUD_M * (SIGMA) * paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeVIndex);
                 }
+                t = t +  (1 - SIGMA) * paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeVIndex);
 
             }
+            time = time + t * T_CLOUD_M;
 
         }
         time = time / paramHandler.totalRequests;
@@ -127,7 +135,8 @@ public class Simulation2 {
         for (int sigma = 0; sigma < sigmaModels.size(); sigma++) {
             SigmaModel model = sigmaModels.get(sigma);
             if (model.app == appIndex && model.source == nodeVIndex && model.target == nodeUIndex) {
-                SIGMA = SIGMA + (1 - model.fraction);
+                SIGMA = model.fraction;
+                return SIGMA;
             }
         }
         return SIGMA;
@@ -136,73 +145,59 @@ public class Simulation2 {
     /*
      * Procedure for assign all overall requests
      * */
-    private List<SigmaModel> assignmentProcedure(String placement, HashSet<Integer> alreadyDeployedApps, double numberOfRequests) {
+    private List<SigmaModel> assignmentProcedure(String placement, HashSet<Integer> alreadyDeployedApps, long numberOfRequests) {
         String[] vm_place_str = placement.split(",");
         int[] vm_place = Arrays.stream(vm_place_str).mapToInt(Integer::parseInt).toArray();
         int choosen_Mec;
         int index_choosen;
         double umega_min;
-        double Rm_v;
         double umega = 0;
         int INDEX = 0; // esharegar be placement
         paramHandler.vm_placement = placement;
         List<SigmaModel> migratedRequests = new ArrayList<>();
         paramHandler.initializeCapacityOfMEC();
+        long[][] matrix_request = new long[numOfApps][graph.nodeNum];
+
+        for (int row_indicator = 0 ; row_indicator<numOfApps;row_indicator++){
+            for (int column_indicator = 0 ; column_indicator<graph.nodeNum;column_indicator++){
+                double Rm_v = paramHandler.calculateRequestOfAppInRegionV(row_indicator, column_indicator);
+                matrix_request[row_indicator][column_indicator] = (int) Rm_v;
+            }
+        }
         while (numberOfRequests > 0) {
             for (int appIndex = 0; appIndex < alreadyDeployedApps.size(); appIndex++) {
 
                 for (int nodeIndex = 0; nodeIndex < graph.nodeNum; nodeIndex++) {
-                    choosen_Mec = -1;
-                    index_choosen = -1;
-                    umega_min = Double.POSITIVE_INFINITY;
-                    Rm_v = 0;
-                    Rm_v = paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeIndex);
-                    ShortestPath shortestPath = graph.dijkstra(graph.makeGraphMatrix(), nodeIndex);
-                    for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
-                        int selectedMEC = vm_place[INDEX + vmIndex];
-                        long dist = shortestPath.shorestDist[selectedMEC];
-                        umega = 0;
-                        int state = -1;
-                        boolean CanChangeChooseMec = false;
-                        umega = umega + paramHandler.calculateEdgeDelayForApp(appIndex, dist);
+                        //System.out.println(numberOfRequests);
+                        choosen_Mec = -1;
+                        index_choosen = -1;
+                        umega_min = Double.POSITIVE_INFINITY;
+                        ShortestPath shortestPath = graph.dijkstra(graph.makeGraphMatrix(), nodeIndex);
 
-//                        for (int edgeIndex = 0; edgeIndex < graph.linkNum; edgeIndex++) {
-//                            state = paramHandler.isEdgeVtoN(nodeIndex, selectedMEC, edgeIndex);
-//                            if (state != -1) {
-//                                CanChangeChooseMec = true;
-//                                umega = umega + paramHandler.calculateEdgeDelayForApp(appIndex,
-//                                        graph.edgeModelList.get(edgeIndex).distance) * state;
-//                            }
-//                        }
-                        if (paramHandler.getCapacityOfMEC(vmIndex, appIndex) > 0 && umega < umega_min) {
-//                            if (CanChangeChooseMec) {
-                            choosen_Mec = selectedMEC;
-                            index_choosen = vmIndex;
-                            umega_min = umega;
+                        for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
+                            int selectedMEC = vm_place[INDEX + vmIndex];
+                            long dist = shortestPath.shorestDist[selectedMEC];
+                            umega = paramHandler.calculateEdgeDelayForApp(appIndex, dist);
 
-//                            }
+                            if (paramHandler.getCapacityOfMEC(vmIndex, appIndex) > 0 && umega < umega_min) {
+                                choosen_Mec = selectedMEC;
+                                index_choosen = vmIndex;
+                                umega_min = umega;
+                            }
                         }
-                    }
-                    if (choosen_Mec != -1 && numberOfRequests > 0) {
-                        Rm_v = Rm_v - 1;
-                        numberOfRequests--;
+                        if (choosen_Mec != -1 && matrix_request[appIndex][nodeIndex] > 0) {
+                            long total = paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeIndex);
+                            matrix_request[appIndex][nodeIndex]--;
+                            //System.out.println(matrix_request[appIndex][nodeIndex]);
+                            numberOfRequests--;
+                            if (numberOfRequests < 0) throw new IllegalArgumentException();
+                            paramHandler.updateCapacityOfMEC(index_choosen, appIndex);
+                            migratedRequests = updateSigmaModelU_V(migratedRequests, nodeIndex, choosen_Mec, total, appIndex);
+                        } else {
 
-                        paramHandler.updateCapacityOfMEC(index_choosen, appIndex);
-                        double total = paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeIndex);
-                        //if (nodeIndex != choosen_Mec)
-                        migratedRequests = updateSigmaModelU_V(migratedRequests, nodeIndex, choosen_Mec, total, appIndex);
-
-                        //System.out.println("total req :" + totalRequests);
-                        //System.out.println("Region total : "+total);
-                        //find sigma
-                    } else if (numberOfRequests > 0) {
-                        Rm_v = 0;
-                        numberOfRequests--;
-                        //System.out.println(Rm_v);
-                        //System.out.println("total req :" + totalRequests);
-                    }
-
-
+                            numberOfRequests = numberOfRequests -  matrix_request[appIndex][nodeIndex];
+                            matrix_request[appIndex][nodeIndex] = 0;
+                        }
                 }
 
                 if (INDEX < alreadyDeployedApps.size() - 1)
@@ -212,7 +207,11 @@ public class Simulation2 {
 
 
         }// end of while
-        System.out.println("Assignment Procedure Placement :" + placement);
+        // Test of Sigma Model*****************
+//        System.out.println("Sigma model size : " + migratedRequests.size());
+//        for (int test = 0 ; test < migratedRequests.size() ; test++)
+//        System.out.println("Source " + migratedRequests.get(test).source +" target "+ migratedRequests.get(test).target +" app "+ migratedRequests.get(test).app + " fraction " + migratedRequests.get(test).fraction);
+        // End Test of Sigma Model***************
         return migratedRequests;
     }
 
@@ -222,14 +221,17 @@ public class Simulation2 {
     private List<SigmaModel> updateSigmaModelU_V(List<SigmaModel> migratedRequests, int nodeIndex, int selectedMEC, double total, int appIndex) {
 
         boolean isTest = false;
+        DecimalFormat df = new DecimalFormat("#.####");
         for (int sigmaIndex = 0; sigmaIndex < migratedRequests.size(); sigmaIndex++) {
             SigmaModel sigmaModel = migratedRequests.get(sigmaIndex);
-            double frac = sigmaModel.fraction + (1 / total);
-            if (sigmaModel.source == nodeIndex && sigmaModel.target == selectedMEC && sigmaModel.app == appIndex && frac <= 1) {
+            double f1 = sigmaModel.fraction + 1/total;
+            double frac = Double.valueOf(df.format(f1));
+            if (sigmaModel.source == nodeIndex && sigmaModel.target == selectedMEC && sigmaModel.app == appIndex) {
+            //TODO uncomment this
+                if (frac>1 && frac <= 1.01){
+                    frac = 1;
+                }
                 sigmaModel.fraction = frac;
-                if (migratedRequests.get(sigmaIndex).fraction > 1) throw new IllegalArgumentException();
-                return migratedRequests;
-            } else if (sigmaModel.source == nodeIndex && sigmaModel.target == selectedMEC && sigmaModel.app == appIndex && sigmaModel.fraction == 1) {
                 return migratedRequests;
             }
         }
@@ -238,7 +240,7 @@ public class Simulation2 {
             sigma.source = nodeIndex;
             sigma.target = selectedMEC;
             sigma.app = appIndex;
-            sigma.fraction = 1 / total;
+            sigma.fraction = Double.valueOf(df.format(1 / total));
             migratedRequests.add(sigma);
             return migratedRequests;
         } else {
@@ -246,7 +248,7 @@ public class Simulation2 {
             sigma.source = nodeIndex;
             sigma.target = selectedMEC;
             sigma.app = appIndex;
-            sigma.fraction = 1 / total;
+            sigma.fraction = Double.valueOf(df.format(1 / total));
             migratedRequests.add(sigma);
             return migratedRequests;
 
@@ -352,6 +354,7 @@ public class Simulation2 {
      * */
     public double latencyAwareHeuristicPlacementAlgorithm() {
         LAHPAmodel lahpAModel = getLAHPAplacement();
+        System.out.println("LAHPA placement : " + lahpAModel.placement);
         List<SigmaModel> sigmaModelList = assignmentProcedure(lahpAModel.placement, lahpAModel.alreadyDeployedApps, paramHandler.totalRequests);
         return calculateTimeAverage(sigmaModelList);
     }
@@ -618,7 +621,6 @@ public class Simulation2 {
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
             ArrayList<Integer> X_Tild = new ArrayList<>(); // each for one app
             String X_tild_str = "";
-            alreadyDeployedApp = new HashSet<Integer>();
             String[] appPlace = getPlacementOfApp(appIndex, lahpAmodel.placement);
             List<ArrayList<Integer>> Y_cluster = clusteringProcedure(appPlace);
             for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {

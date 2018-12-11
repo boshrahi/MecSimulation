@@ -30,12 +30,12 @@ public class ParameterHandler {
     private int numOfUsers;
     private int numOfApps;
     private String numberOfUsersPerRegion;
-    public double totalRequests;
-    private final double alpha = 1;
+    public long totalRequests;
+    private final double alpha = 0.8;
     private final double cloudDelay = 400; //ms
     final double serviceDelayPerRegion = 0.01; //ms
-    private final double serviceRate = 320; // 57
-    private final String capacityOfMec = "50"; //should be 1000
+    private final double serviceRate = 1001; // 57
+    private final String capacityOfMec = "1000"; //should be 1000
     //------------------- demand of every request of app
     private final int demandOfRequest = 2;
     private String landaPerApp;
@@ -113,7 +113,7 @@ public class ParameterHandler {
         return delayCalculator(whichApp, cloudDelay);
     }
 
-    public double calculateAvrgRequestArrivalRate(int whichApp, int whichRegion, List<SigmaModel> sigmaList, int appIndex) {
+    public double calculateAvrgRequestArrivalRate(int whichApp, int whichRegion, List<SigmaModel> sigmaList) {
         // need Sigma m u-->v here
         int indicator = 0;
         double average = 0;
@@ -124,9 +124,9 @@ public class ParameterHandler {
             }
             for (int sigmaIndex = 0; sigmaIndex < sigmaList.size(); sigmaIndex++) {
                 SigmaModel model = sigmaList.get(sigmaIndex);
-                if (model.source == nodeIndex && model.target == whichRegion && model.app == appIndex) {
+                if (model.source == nodeIndex && model.target == whichRegion && model.app == whichApp) {
                     average = average + indicator * model.fraction * Double.valueOf(users_region[whichRegion])
-                            * getTotalLandaPerApp(appIndex, whichRegion, users_region) * alpha;
+                            * getLandaPerApp(whichApp) * alpha;
                 }
             }
         }
@@ -136,13 +136,17 @@ public class ParameterHandler {
     public double calculateServerDelay(int whichRegion, List<SigmaModel> list) {// T s -- v
 
         double A_region_V = 0;
+        double t = 0;
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
-            A_region_V = A_region_V + calculateAvrgRequestArrivalRate(appIndex, whichRegion, list, appIndex);
+            A_region_V = A_region_V + calculateAvrgRequestArrivalRate(appIndex, whichRegion, list);
             //System.out.println("A_region_V : " + A_region_V);
         }
         if (serviceRate <= A_region_V) throw new IllegalArgumentException();
-        if (A_region_V == 0 ) return 0;
-        return 1 / (serviceRate - A_region_V);
+        else{
+            t = 1 / (serviceRate - A_region_V);
+            //System.out.println("service time : " + t);
+            return t;
+        }
     }
 
     private double delayCalculator(int whichApp, double delay) {
@@ -152,10 +156,10 @@ public class ParameterHandler {
         else return delay;
     }
 
-    public double calculateRequestOfAppInRegionV(int whichApp, int whichRegion) {
+    public long calculateRequestOfAppInRegionV(int whichApp, int whichRegion) {
         //R v-m
         String[] users_region = numberOfUsersPerRegion.split(",");
-        double request = Long.valueOf(users_region[whichRegion]) * alpha * getLandaPerApp(whichApp); // or getTotalLandaPerApp()
+        long request = (long) (Long.valueOf(users_region[whichRegion]) * alpha * getLandaPerApp(whichApp)); // or getTotalLandaPerApp()
         //double request = Long.valueOf(users_region[whichRegion]) * alpha * getTotalLandaPerApp(whichApp, whichRegion, users_region);
         return request;
 
@@ -176,25 +180,25 @@ public class ParameterHandler {
         return app_landa * user_number_in_region;
     }
 
-    private double calculateTotalRequests(String numberOfUsersPerRegion, String landaPerApp) {
+    private long calculateTotalRequests(String numberOfUsersPerRegion, String landaPerApp) {
         String[] users_region = numberOfUsersPerRegion.split(",");
         String[] landa_app = landaPerApp.split(",");
-        double total = 0;
+        long total = 0;
         for (int index = 0; index < users_region.length; index++) {
             for (int appIndex = 0; appIndex < landa_app.length; appIndex++) {
-                total = total + calculateRequestOfAppInRegionV(appIndex
-                        , index);
+                total = (long) (total + calculateRequestOfAppInRegionV(appIndex
+                                        , index));
             }
         }
         return total;
     }
 
-    public double calculateRequestOfApp(int whichApp) {
+    public long calculateRequestOfApp(int whichApp) {
         String[] users_region = numberOfUsersPerRegion.split(",");
-        double total = 0;
+        long total = 0;
         for (int index = 0; index < users_region.length; index++) {
-            total = total + calculateRequestOfAppInRegionV(whichApp
-                    , index);
+            total = (long) (total + calculateRequestOfAppInRegionV(whichApp
+                    , index));
         }
         return total;
     }
