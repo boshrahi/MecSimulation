@@ -165,6 +165,7 @@ public class Simulation2 {
             }
         }
         while (numberOfRequests > 0) {
+            //System.out.println(numberOfRequests);
             for (int appIndex = 0; appIndex < alreadyDeployedApps.size(); appIndex++) {
 
                 for (int nodeIndex = 0; nodeIndex < graph.nodeNum; nodeIndex++) {
@@ -190,7 +191,10 @@ public class Simulation2 {
                             matrix_request[appIndex][nodeIndex]--;
                             //System.out.println(matrix_request[appIndex][nodeIndex]);
                             numberOfRequests--;
-                            if (numberOfRequests < 0) throw new IllegalArgumentException();
+                            if (numberOfRequests < 0) {
+                                System.out.println(numberOfRequests);
+                                throw new IllegalArgumentException();
+                            }
                             paramHandler.updateCapacityOfMEC(index_choosen, appIndex);
                             migratedRequests = updateSigmaModelU_V(migratedRequests, nodeIndex, choosen_Mec, total, appIndex);
                         } else {
@@ -389,7 +393,11 @@ public class Simulation2 {
             alreadyDeployedApps.add(appIndex);
             // assignment process 1
             String placement = makePlacement(placementCaseArray);
-            sigmaList = assignmentProcedure(placement, alreadyDeployedApps, paramHandler.calculateRequestOfApp(appIndex));
+            long req_number = 0;
+            for (int app = 0; app<alreadyDeployedApps.size() ; app++){
+                req_number = req_number + paramHandler.calculateRequestOfApp(app);
+            }
+            sigmaList = assignmentProcedure(placement, alreadyDeployedApps, req_number);
 
             serviceTimes = new ArrayList<>();
             for (int serviceIndex = 0; serviceIndex < graph.nodeNum; serviceIndex++) {
