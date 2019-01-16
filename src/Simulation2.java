@@ -3,7 +3,12 @@ import cc.redberry.combinatorics.Combinatorics;
 import utils.Graph;
 import utils.ParameterHandler;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.ParseException;
 import java.util.*;
 
 /**
@@ -27,6 +32,9 @@ public class Simulation2 {
     private static List<VRCnodeModel> placementsForSingleApp;
     private static List<String> allVMS;
     ParameterHandler paramHandler;
+    private String COMBINATOR_PATHS = "./combination_graphs/";
+    private String SHORTEST_PATHS = "./shortest_paths/";
+
     //------------------------request
 
 
@@ -46,7 +54,7 @@ public class Simulation2 {
      * */
     double optimalEnumerationPlacementAlgorithm() {
 
-        List<String> all = initialAllPlacements(numOfVRCPerApp, numOfApps, graph);
+        String placement;
         double T_MIN = Double.POSITIVE_INFINITY;
         double T_AVG = 0;
         String finalPLACEMENT = "";
@@ -54,15 +62,27 @@ public class Simulation2 {
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
             alreadyDeployedApps.add(appIndex);
         }
-        for (String placement : all) {
-            List<SigmaModel> sigmaModels = assignmentProcedure(placement, alreadyDeployedApps, paramHandler.totalRequests);
-            //calculate T_AVG equation 8
-            T_AVG = calculateTimeAverage(sigmaModels);
-            if (T_AVG <= T_MIN) {
-                T_MIN = T_AVG;
-                System.out.println(T_MIN);
-                finalPLACEMENT = placement;
+        //List<String> all = initialAllPlacements(numOfVRCPerApp, numOfApps, graph);
+        File fl = new File(COMBINATOR_PATHS+graphType+"_"+"vm"+numOfVRCPerApp+".txt");
+        try {
+            FileReader frd = new FileReader(fl);
+            BufferedReader brd = new BufferedReader(frd);
+            while ((placement=brd.readLine())!=null) {
+                List<SigmaModel> sigmaModels = assignmentProcedure(placement, alreadyDeployedApps, paramHandler.totalRequests);
+                //calculate T_AVG equation 8
+                T_AVG = calculateTimeAverage(sigmaModels);
+                if (T_AVG <= T_MIN) {
+                    T_MIN = T_AVG;
+                    System.out.println(T_MIN);
+                    finalPLACEMENT = placement;
+                }
             }
+            brd.close();
+            frd.close();
+        } catch (IOException io) {
+            System.out.println("Somethings wrong with combination files!");
+            return 0;
+
         }
         System.out.println("Optiaml Placement : " + finalPLACEMENT);
         return T_MIN;
@@ -156,6 +176,8 @@ public class Simulation2 {
         paramHandler.vm_placement = placement;
         List<SigmaModel> migratedRequests = new ArrayList<>();
         paramHandler.initializeCapacityOfMEC();
+
+        //Generate matrix request*******************************************
         long[][] matrix_request = new long[numOfApps][graph.nodeNum];
 
         for (int row_indicator = 0 ; row_indicator<numOfApps;row_indicator++){
@@ -164,6 +186,29 @@ public class Simulation2 {
                 matrix_request[row_indicator][column_indicator] = (int) Rm_v;
             }
         }
+        //reading shortest path from files*******************************************
+        File fl = new File(SHORTEST_PATHS+graphType+"_shortest_path.txt");
+        String line = null;
+        int nodeCounter = 0;
+        float[][] graph_shortest_path_matrix = new float[graph.nodeNum][graph.nodeNum];
+        try {
+            FileReader frd = new FileReader(fl);
+            BufferedReader brd = new BufferedReader(frd);
+            while ((line=brd.readLine())!=null) {
+              String[] line1 =  line.split(" ");
+              for (int splitter = 0 ; splitter<line1.length; splitter++){
+                  graph_shortest_path_matrix[nodeCounter][splitter] = Float.valueOf(line1[splitter]);
+              }
+              nodeCounter++;
+            }
+            brd.close();
+            frd.close();
+        } catch (IOException io) {
+            System.out.println("Somethings wrong with shortest paths files!");
+
+        }
+        //******************************************************************************
+
         while (numberOfRequests > 0) {
             //System.out.println(numberOfRequests);
             for (int appIndex = 0; appIndex < alreadyDeployedApps.size(); appIndex++) {
@@ -173,11 +218,11 @@ public class Simulation2 {
                         choosen_Mec = -1;
                         index_choosen = -1;
                         umega_min = Double.POSITIVE_INFINITY;
-                        ShortestPath shortestPath = graph.dijkstra(graph.makeGraphMatrix(), nodeIndex);
+                        //ShortestPath shortestPath = graph.dijkstra(graph.makeGraphMatrix(), nodeIndex);
 
                         for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
                             int selectedMEC = vm_place[INDEX + vmIndex];
-                            long dist = shortestPath.shorestDist[selectedMEC];
+                            float dist = graph_shortest_path_matrix[nodeIndex][selectedMEC];
                             umega = paramHandler.calculateEdgeDelayForApp(appIndex, dist);
 
                             if (paramHandler.getCapacityOfMEC(vmIndex, appIndex) > 0 && umega < umega_min) {
