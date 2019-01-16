@@ -19,12 +19,12 @@ import java.io.FileReader;
  */
 
 public class Graph {
-    public static final String SPIRALIGHT = "SPIRALIGHT";
-    public static final String SAGO = "SAGO";
-    public static final String SHENTEL = "SHENTEL";
-    public static final String MISSOURI = "MISSOURI";
-    public static final String TEST = "TEST";
-    public static final String NOEL = "NOEL";
+    public static final String SPIRALIGHT = "spiralight";
+    public static final String SAGO = "sago";
+    public static final String SHENTEL = "shentel";
+    public static final String MISSOURI = "missouri";
+    public static final String TEST = "test";
+    public static final String NOEL = "noel";
     public GraphModel model;
 
 
