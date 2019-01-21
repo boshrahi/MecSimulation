@@ -29,10 +29,8 @@ public class Simulation2 {
     private int numOfUsers;
     private int numOfApps;
     private GraphModel graph;
-    private static List<VRCnodeModel> placementsForSingleApp;
-    private static List<String> allVMS;
     ParameterHandler paramHandler;
-    private String COMBINATOR_PATHS = "./combination_graphs/";
+    //private String COMBINATOR_PATHS = "/home/boshra/Documents/Java/java-workspace/MecSimulation/combination_graphs/";
     private String SHORTEST_PATHS = "./shortest_paths/";
 
     //------------------------request
@@ -52,9 +50,9 @@ public class Simulation2 {
     /*
      * Algorithm 1 in paper
      * */
-    double optimalEnumerationPlacementAlgorithm() {
+    double optimalEnumerationPlacementAlgorithm(String placement) {
 
-        String placement;
+        //String placement;
         double T_MIN = Double.POSITIVE_INFINITY;
         double T_AVG = 0;
         String finalPLACEMENT = "";
@@ -62,30 +60,10 @@ public class Simulation2 {
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
             alreadyDeployedApps.add(appIndex);
         }
-        //List<String> all = initialAllPlacements(numOfVRCPerApp, numOfApps, graph);
-        File fl = new File(COMBINATOR_PATHS+graphType+"_"+"vm"+numOfVRCPerApp+".txt");
-        try {
-            FileReader frd = new FileReader(fl);
-            BufferedReader brd = new BufferedReader(frd);
-            while ((placement=brd.readLine())!=null) {
-                List<SigmaModel> sigmaModels = assignmentProcedure(placement, alreadyDeployedApps, paramHandler.totalRequests);
-                //calculate T_AVG equation 8
-                T_AVG = calculateTimeAverage(sigmaModels);
-                if (T_AVG <= T_MIN) {
-                    T_MIN = T_AVG;
-                    System.out.println(T_MIN);
-                    finalPLACEMENT = placement;
-                }
-            }
-            brd.close();
-            frd.close();
-        } catch (IOException io) {
-            System.out.println("Somethings wrong with combination files!");
-            return 0;
-
-        }
-        System.out.println("Optiaml Placement : " + finalPLACEMENT);
-        return T_MIN;
+        List<SigmaModel> sigmaModels = assignmentProcedure(placement, alreadyDeployedApps, paramHandler.totalRequests);
+        //calculate T_AVG equation 8
+        T_AVG = calculateTimeAverage(sigmaModels);
+        return T_AVG;
     }
 
     /*
@@ -94,8 +72,8 @@ public class Simulation2 {
     private double calculateTimeAverage(List<SigmaModel> sigmaModels) {
         double time = 0;
         double T_CLOUD_M;
-        double T_SERVICE_V ;
-        double AVG_M_V ;
+        double T_SERVICE_V;
+        double AVG_M_V;
 
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
             double SIGMA = 0;
@@ -137,7 +115,7 @@ public class Simulation2 {
                         SIGMA = 1;
                     }
                 }
-                t = t +  (1 - SIGMA) * paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeVIndex);
+                t = t + (1 - SIGMA) * paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeVIndex);
 
             }
             time = time + t * T_CLOUD_M;
@@ -180,26 +158,26 @@ public class Simulation2 {
         //Generate matrix request*******************************************
         long[][] matrix_request = new long[numOfApps][graph.nodeNum];
 
-        for (int row_indicator = 0 ; row_indicator<numOfApps;row_indicator++){
-            for (int column_indicator = 0 ; column_indicator<graph.nodeNum;column_indicator++){
+        for (int row_indicator = 0; row_indicator < numOfApps; row_indicator++) {
+            for (int column_indicator = 0; column_indicator < graph.nodeNum; column_indicator++) {
                 double Rm_v = paramHandler.calculateRequestOfAppInRegionV(row_indicator, column_indicator);
                 matrix_request[row_indicator][column_indicator] = (int) Rm_v;
             }
         }
         //reading shortest path from files*******************************************
-        File fl = new File(SHORTEST_PATHS+graphType+"_shortest_path.txt");
+        File fl = new File(SHORTEST_PATHS + graphType + "_shortest_path.txt");
         String line = null;
         int nodeCounter = 0;
         float[][] graph_shortest_path_matrix = new float[graph.nodeNum][graph.nodeNum];
         try {
             FileReader frd = new FileReader(fl);
             BufferedReader brd = new BufferedReader(frd);
-            while ((line=brd.readLine())!=null) {
-              String[] line1 =  line.split(" ");
-              for (int splitter = 0 ; splitter<line1.length; splitter++){
-                  graph_shortest_path_matrix[nodeCounter][splitter] = Float.valueOf(line1[splitter]);
-              }
-              nodeCounter++;
+            while ((line = brd.readLine()) != null) {
+                String[] line1 = line.split(" ");
+                for (int splitter = 0; splitter < line1.length; splitter++) {
+                    graph_shortest_path_matrix[nodeCounter][splitter] = Float.valueOf(line1[splitter]);
+                }
+                nodeCounter++;
             }
             brd.close();
             frd.close();
@@ -214,39 +192,39 @@ public class Simulation2 {
             for (int appIndex = 0; appIndex < alreadyDeployedApps.size(); appIndex++) {
 
                 for (int nodeIndex = 0; nodeIndex < graph.nodeNum; nodeIndex++) {
-                        //System.out.println(numberOfRequests);
-                        choosen_Mec = -1;
-                        index_choosen = -1;
-                        umega_min = Double.POSITIVE_INFINITY;
-                        //ShortestPath shortestPath = graph.dijkstra(graph.makeGraphMatrix(), nodeIndex);
+                    //System.out.println(numberOfRequests);
+                    choosen_Mec = -1;
+                    index_choosen = -1;
+                    umega_min = Double.POSITIVE_INFINITY;
+                    //ShortestPath shortestPath = graph.dijkstra(graph.makeGraphMatrix(), nodeIndex);
 
-                        for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
-                            int selectedMEC = vm_place[INDEX + vmIndex];
-                            float dist = graph_shortest_path_matrix[nodeIndex][selectedMEC];
-                            umega = paramHandler.calculateEdgeDelayForApp(appIndex, dist);
+                    for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
+                        int selectedMEC = vm_place[INDEX + vmIndex];
+                        float dist = graph_shortest_path_matrix[nodeIndex][selectedMEC];
+                        umega = paramHandler.calculateEdgeDelayForApp(appIndex, dist);
 
-                            if (paramHandler.getCapacityOfMEC(vmIndex, appIndex) > 0 && umega < umega_min) {
-                                choosen_Mec = selectedMEC;
-                                index_choosen = vmIndex;
-                                umega_min = umega;
-                            }
+                        if (paramHandler.getCapacityOfMEC(vmIndex, appIndex) > 0 && umega < umega_min) {
+                            choosen_Mec = selectedMEC;
+                            index_choosen = vmIndex;
+                            umega_min = umega;
                         }
-                        if (choosen_Mec != -1 && matrix_request[appIndex][nodeIndex] > 0) {
-                            long total = paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeIndex);
-                            matrix_request[appIndex][nodeIndex]--;
-                            //System.out.println(matrix_request[appIndex][nodeIndex]);
-                            numberOfRequests--;
-                            if (numberOfRequests < 0) {
-                                System.out.println(numberOfRequests);
-                                throw new IllegalArgumentException();
-                            }
-                            paramHandler.updateCapacityOfMEC(index_choosen, appIndex);
-                            migratedRequests = updateSigmaModelU_V(migratedRequests, nodeIndex, choosen_Mec, total, appIndex);
-                        } else {
-
-                            numberOfRequests = numberOfRequests -  matrix_request[appIndex][nodeIndex];
-                            matrix_request[appIndex][nodeIndex] = 0;
+                    }
+                    if (choosen_Mec != -1 && matrix_request[appIndex][nodeIndex] > 0) {
+                        long total = paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeIndex);
+                        matrix_request[appIndex][nodeIndex]--;
+                        //System.out.println(matrix_request[appIndex][nodeIndex]);
+                        numberOfRequests--;
+                        if (numberOfRequests < 0) {
+                            System.out.println(numberOfRequests);
+                            throw new IllegalArgumentException();
                         }
+                        paramHandler.updateCapacityOfMEC(index_choosen, appIndex);
+                        migratedRequests = updateSigmaModelU_V(migratedRequests, nodeIndex, choosen_Mec, total, appIndex);
+                    } else {
+
+                        numberOfRequests = numberOfRequests - matrix_request[appIndex][nodeIndex];
+                        matrix_request[appIndex][nodeIndex] = 0;
+                    }
                 }
 
                 if (INDEX < alreadyDeployedApps.size() - 1)
@@ -257,9 +235,9 @@ public class Simulation2 {
 
         }// end of while
         // Test of Sigma Model*****************
-//        System.out.println("Sigma model size : " + migratedRequests.size());
-//        for (int test = 0 ; test < migratedRequests.size() ; test++)
-//        System.out.println("Source " + migratedRequests.get(test).source +" target "+ migratedRequests.get(test).target +" app "+ migratedRequests.get(test).app + " fraction " + migratedRequests.get(test).fraction);
+        //System.out.println("Sigma model size : " + migratedRequests.size());
+        //for (int test = 0 ; test < migratedRequests.size() ; test++)
+        //System.out.println("Source " + migratedRequests.get(test).source +" target "+ migratedRequests.get(test).target +" app "+ migratedRequests.get(test).app + " fraction " + migratedRequests.get(test).fraction);
         // End Test of Sigma Model***************
         return migratedRequests;
     }
@@ -273,11 +251,11 @@ public class Simulation2 {
         DecimalFormat df = new DecimalFormat("#.####");
         for (int sigmaIndex = 0; sigmaIndex < migratedRequests.size(); sigmaIndex++) {
             SigmaModel sigmaModel = migratedRequests.get(sigmaIndex);
-            double f1 = sigmaModel.fraction + 1/total;
+            double f1 = sigmaModel.fraction + 1 / total;
             double frac = Double.valueOf(df.format(f1));
             if (sigmaModel.source == nodeIndex && sigmaModel.target == selectedMEC && sigmaModel.app == appIndex) {
-            //TODO uncomment this
-                if (frac>1 && frac <= 1.01){
+                //TODO uncomment this
+                if (frac > 1 && frac <= 1.01) {
                     frac = 1;
                 }
                 sigmaModel.fraction = frac;
@@ -304,97 +282,6 @@ public class Simulation2 {
         }
     }
 
-    // Placement Enumeration--------------------------------------------------------------------------------------------
-    private List<String> initialAllPlacements(int numOfVRCPerApp, int numOfApps, GraphModel graph) {
-
-        // System.out.println(enumeratePlacementCounts());
-        //---------------------------------
-        java.util.List<java.util.List> all = new ArrayList<>();
-
-        for (int j = 0; j < numOfApps; j++) {
-
-            placementsForSingleApp = new ArrayList<>();
-
-            Combinatorics.combinations(graph.nodeNum, numOfVRCPerApp)
-                    .stream()
-                    .map(Simulation2::combinChangeIntToString)
-                    .forEach(Simulation2::combinWritePlacementToList);
-            all.add(placementsForSingleApp);
-
-
-        }
-
-        List<VRCnodeModel> list = all.get(0);
-        VRCnodeModel model;
-        VRCnodeModel[] set1 = new VRCnodeModel[list.size()];
-
-        for (int i = 0; i < list.size(); i++) { // firstApp
-            model = list.get(i);
-            set1[i] = model;
-        }
-        List<VRCnodeModel> list2 = all.get(1);
-        VRCnodeModel model2;
-        VRCnodeModel[] set2 = new VRCnodeModel[list2.size()];
-        for (int i = 0; i < list2.size(); i++) { // second App
-            model2 = list2.get(i);
-            set2[i] = model2;
-        }
-        allVMS = new ArrayList<>();
-        Combinatorics.tuples(set1, set2)
-                .stream()
-                .map(Simulation2::tupleCombine)
-                .forEach(Simulation2::tupleWriteToList);
-        return allVMS;
-    }
-
-    private static void tupleWriteToList(String numbers) {
-        allVMS.add(numbers);
-    }
-
-    private static String tupleCombine(VRCnodeModel[] vrCnodeModels) {
-        String allVms = "";
-        for (int i = 0; i < vrCnodeModels.length; i++) {
-            VRCnodeModel model = vrCnodeModels[i];
-            for (int j = 0; j < model.map.size(); j++) {
-                long vm_placement = model.map.get(j);
-                allVms = allVms + vm_placement + ",";
-
-            }
-
-        }
-        String[] arr = allVms.split(",");
-        return allVms;
-    }
-
-    private static String combinChangeIntToString(int[] ints) {
-        String newString = "";
-        for (int index = 0; index < ints.length; index++) {
-            if (index == ints.length - 1) newString = newString + ints[index];
-            else newString = newString + ints[index] + " ";
-        }
-        return newString;
-    }
-
-    private static void combinWritePlacementToList(String s) {
-        String[] array = s.split(" ");
-        VRCnodeModel placement = new VRCnodeModel();
-        for (int vrcIndex = 0; vrcIndex < array.length; vrcIndex++) {
-            placement.map.put(vrcIndex, Long.valueOf(array[vrcIndex]));
-        }
-        placementsForSingleApp.add(placement);
-
-    }
-
-    private long enumeratePlacementCounts() {
-        long nodes = graph.nodeNum;
-        long multi = 1;
-        for (int i = 1; i <= numOfVRCPerApp; i++) {
-            multi = multi * nodes;
-            nodes--;
-        } // enumerate places form VRCs in utils.Graph
-        multi = (long) Math.pow(multi, numOfApps);
-        return multi;
-    }
 
     //Latency Aware Heuristic Placement Algo ---------------------------------------------------------------------------
 
@@ -439,7 +326,7 @@ public class Simulation2 {
             // assignment process 1
             String placement = makePlacement(placementCaseArray);
             long req_number = 0;
-            for (int app = 0; app<alreadyDeployedApps.size() ; app++){
+            for (int app = 0; app < alreadyDeployedApps.size(); app++) {
                 req_number = req_number + paramHandler.calculateRequestOfApp(app);
             }
             sigmaList = assignmentProcedure(placement, alreadyDeployedApps, req_number);

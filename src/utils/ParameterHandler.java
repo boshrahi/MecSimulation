@@ -31,10 +31,10 @@ public class ParameterHandler {
     private int numOfApps;
     private String numberOfUsersPerRegion;
     public long totalRequests;
-    private final double alpha = 1;
+    private final double alpha = 0.6;
     private final double cloudDelay = 400; //ms
     final double serviceDelayPerRegion = 0.01; //ms
-    private final double serviceRate = 1001; // 57
+    private final double serviceRate = 2000; // 57
     private final String capacityOfMec = "1000"; //should be 1000
     //------------------- demand of every request of app
     private final int demandOfRequest = 2;
