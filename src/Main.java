@@ -16,7 +16,7 @@ public class Main {
 
     public static void main(String[] args) {
 
-        final int numOfVRCPerApp = 15;
+        final int numOfVRCPerApp = 18;
         final int numOfUsers = 1000;
         final int numOfApps = 2;
         final String graph = Graph.NOEL;
@@ -28,13 +28,14 @@ public class Main {
         double T_MIN_SEHPA = 0;
         //LAHPA-------------------------------------------------------------------
         T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
+        System.out.println("T_MIN_LAHPA : ------>  " + T_MIN_LAHPA);
+
         //CEHPA-------------------------------------------------------------------
         T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
+        System.out.println("T_MIN_CEHPA : ------>  " + T_MIN_CEHPA);
+
         //SEHPA-------------------------------------------------------------------
         T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
-
-        System.out.println("T_MIN_LAHPA : ------>  " + T_MIN_LAHPA);
-        System.out.println("T_MIN_CEHPA : ------>  " + T_MIN_CEHPA);
         System.out.println("T_MIN_SEHPA : ------>  " + T_MIN_SEHPA);
 
     }
@@ -75,7 +76,7 @@ public class Main {
         Combinatorics.tuples(set1, set2)
                 .stream()
                 .map(Main::tupleCombine)
-                .forEach(Main::tupleWriteToList);
+                .forEach(numbers -> tupleWriteToList(numbers,numOfVRCPerApp,numberOfUsers,numOfApps,graphS));
         // calculate times of algorithms and find placements
         System.out.println("T_MIN_OPEA : ------>  " + T_MIN);
         System.out.println("Optiaml Placement : " + finalPLACEMENT);
@@ -83,11 +84,11 @@ public class Main {
 
     }
 
-    private static void tupleWriteToList(String numbers) {
-        final int numOfVRCPerApp = 10;
-        final int numOfUsers = 1000;
-        final int numOfApps = 2;
-        final String graph = Graph.NOEL;
+    private static void tupleWriteToList(String numbers , int numOfVRCPerApp, int numOfUsers,int numOfApps, String graph) {
+//        final int numOfVRCPerApp = 10;
+//        final int numOfUsers = 1000;
+//        final int numOfApps = 2;
+//        final String graph = Graph.NOEL;
 
         //optimal----------------------------------------------------------------
         Simulation2 simulation = new Simulation2(graph, numOfVRCPerApp, numOfUsers, numOfApps);  // just works for 2 apps for now
