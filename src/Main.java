@@ -3,7 +3,13 @@ import model.GraphModel;
 import model.VRCnodeModel;
 import utils.Graph;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Main {
@@ -14,37 +20,134 @@ public class Main {
 
     private static String finalPLACEMENT = "";
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
-        final int numOfVRCPerApp = 18;
+        //final int numOfVRCPerApp = 18;
         final int numOfUsers = 1000;
         final int numOfApps = 2;
-        final String graph = Graph.NOEL;
-        initialAllPlacementsAndCalcOptimalTimes(numOfVRCPerApp, numOfApps, graph, numOfUsers);
-
-        Simulation2 simulation = new Simulation2(graph, numOfVRCPerApp, numOfUsers, numOfApps);
+        String graph;
+        List<String> list;
+        Path file = Paths.get("results_1" + ".txt");
+//        initialAllPlacementsAndCalcOptimalTimes(numOfVRCPerApp, numOfApps, graph, numOfUsers);
+//
+//        Simulation2 simulation = new Simulation2(graph, numOfVRCPerApp, numOfUsers, numOfApps);
         double T_MIN_LAHPA = 0;
         double T_MIN_CEHPA = 0;
         double T_MIN_SEHPA = 0;
-        //LAHPA-------------------------------------------------------------------
+//        //LAHPA-------------------------------------------------------------------
+//        T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
+//        System.out.println("T_MIN_LAHPA : ------>  " + T_MIN_LAHPA);
+//
+//        //CEHPA-------------------------------------------------------------------
+//        T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
+//        System.out.println("T_MIN_CEHPA : ------>  " + T_MIN_CEHPA);
+//
+//        //SEHPA-------------------------------------------------------------------
+//        T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
+//        System.out.println("T_MIN_SEHPA : ------>  " + T_MIN_SEHPA);
+
+
+//Noel
+        graph = Graph.NOEL;
+        //initialAllPlacementsAndCalcOptimalTimes(1, numOfApps, graph, numOfUsers);
+        Simulation2 simulation = new Simulation2(graph, 1, numOfUsers, numOfApps);
         T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
-        System.out.println("T_MIN_LAHPA : ------>  " + T_MIN_LAHPA);
+        list = Arrays.asList("T_MIN_L_NOEL : " + "VRC number : " + 1 + " Time : " + T_MIN_LAHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
 
-        //CEHPA-------------------------------------------------------------------
         T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
-        System.out.println("T_MIN_CEHPA : ------>  " + T_MIN_CEHPA);
+        list = Arrays.asList("T_MIN_C_NOEL : " + "VRC number : " + 1 + " Time : " + T_MIN_CEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
 
-        //SEHPA-------------------------------------------------------------------
         T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
-        System.out.println("T_MIN_SEHPA : ------>  " + T_MIN_SEHPA);
+        list = Arrays.asList("T_MIN_S_NOEL : " + "VRC number : " + 1 + " Time : " + T_MIN_SEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        //initialAllPlacementsAndCalcOptimalTimes(2, numOfApps, graph, numOfUsers);
+         simulation = new Simulation2(graph, 2, numOfUsers, numOfApps);
+        T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_L_NOEL : " + "VRC number : " + 2 + " Time : " + T_MIN_LAHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_C_NOEL : " + "VRC number : " + 2 + " Time : " + T_MIN_CEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_S_NOEL : " + "VRC number : " + 2 + " Time : " + T_MIN_SEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+
+        //initialAllPlacementsAndCalcOptimalTimes(3, numOfApps, graph, numOfUsers);
+         simulation = new Simulation2(graph, 3, numOfUsers, numOfApps);
+        T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_L_NOEL : " + "VRC number : " + 3 + " Time : " + T_MIN_LAHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_C_NOEL : " + "VRC number : " + 3 + " Time : " + T_MIN_CEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_S_NOEL : " + "VRC number : " + 3 + " Time : " + T_MIN_SEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        //initialAllPlacementsAndCalcOptimalTimes(17, numOfApps, graph, numOfUsers);
+         simulation = new Simulation2(graph, 17, numOfUsers, numOfApps);
+        T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_L_NOEL : " + "VRC number : " + 17 + " Time : " + T_MIN_LAHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_C_NOEL : " + "VRC number : " + 17 + " Time : " + T_MIN_CEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_S_NOEL : " + "VRC number : " + 17 + " Time : " + T_MIN_SEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        //initialAllPlacementsAndCalcOptimalTimes(18, numOfApps, graph, numOfUsers);
+         simulation = new Simulation2(graph, 18, numOfUsers, numOfApps);
+        T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_L_NOEL : " + "VRC number : " + 18 + " Time : " + T_MIN_LAHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_C_NOEL : " + "VRC number : " + 18 + " Time : " + T_MIN_CEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_S_NOEL : " + "VRC number : " + 18 + " Time : " + T_MIN_SEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        //initialAllPlacementsAndCalcOptimalTimes(19, numOfApps, graph, numOfUsers);
+         simulation = new Simulation2(graph, 19, numOfUsers, numOfApps);
+        T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_L_NOEL : " + "VRC number : " + 19 + " Time : " + T_MIN_LAHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_C_NOEL : " + "VRC number : " + 19 + " Time : " + T_MIN_CEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+        T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
+        list = Arrays.asList("T_MIN_S_NOEL : " + "VRC number : " + 19 + " Time : " + T_MIN_SEHPA + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
+
+
 
     }
 
     // Placement Enumeration--------------------------------------------------------------------------------------------
-    public static void initialAllPlacementsAndCalcOptimalTimes(int numOfVRCPerApp, int numOfApps, String graphS, int numberOfUsers) {
+    public static void initialAllPlacementsAndCalcOptimalTimes(int numOfVRCPerApp, int numOfApps, String graphS, int numberOfUsers) throws IOException {
 
         Graph graph = new Graph(graphS);
         GraphModel graphModel = graph.getGraphModel();
+        List<String> list;
+        T_MIN = Double.POSITIVE_INFINITY;
+        T_AVG = 0;
+        Path file = Paths.get("results_1" + ".txt");
+
 
         // first app ---------------------------
         placementsForSingleApp = new ArrayList<>();
@@ -76,15 +179,19 @@ public class Main {
         Combinatorics.tuples(set1, set2)
                 .stream()
                 .map(Main::tupleCombine)
-                .forEach(numbers -> tupleWriteToList(numbers,numOfVRCPerApp,numberOfUsers,numOfApps,graphS));
+                .forEach(numbers -> tupleWriteToList(numbers, numOfVRCPerApp, numberOfUsers, numOfApps, graphS));
         // calculate times of algorithms and find placements
-        System.out.println("T_MIN_OPEA : ------>  " + T_MIN);
-        System.out.println("Optiaml Placement : " + finalPLACEMENT);
+        System.out.println("T_MIN_OPEA_" + graphS + " : ------>  " + T_MIN);
+        System.out.println("Optiaml Placement_" + graphS + " : " + finalPLACEMENT);
+
+        list = Arrays.asList("T_MIN_OPEA_" + graphS + " : ------>  " + T_MIN + " " +
+                "Optiaml Placement_" + graphS + " : " + finalPLACEMENT + " vrc : " + numOfVRCPerApp + "\n");
+        Files.write(file, list, StandardOpenOption.APPEND);
 
 
     }
 
-    private static void tupleWriteToList(String numbers , int numOfVRCPerApp, int numOfUsers,int numOfApps, String graph) {
+    private static void tupleWriteToList(String numbers, int numOfVRCPerApp, int numOfUsers, int numOfApps, String graph) {
 //        final int numOfVRCPerApp = 10;
 //        final int numOfUsers = 1000;
 //        final int numOfApps = 2;
@@ -95,10 +202,9 @@ public class Main {
         T_AVG = simulation.optimalEnumerationPlacementAlgorithm(numbers);
         if (T_AVG <= T_MIN) {
             T_MIN = T_AVG;
-            System.out.println(T_MIN);
+            //System.out.println(T_MIN);
             finalPLACEMENT = numbers;
         }
-
     }
 
     private static String tupleCombine(VRCnodeModel[] vrCnodeModels) {
@@ -112,7 +218,6 @@ public class Main {
             }
 
         }
-        String[] arr = allVms.split(",");
         return allVms;
     }
 

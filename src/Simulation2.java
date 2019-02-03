@@ -53,7 +53,6 @@ public class Simulation2 {
     double optimalEnumerationPlacementAlgorithm(String placement) {
 
         //String placement;
-        double T_MIN = Double.POSITIVE_INFINITY;
         double T_AVG = 0;
         String finalPLACEMENT = "";
         HashSet<Integer> alreadyDeployedApps = new HashSet<>(numOfApps);

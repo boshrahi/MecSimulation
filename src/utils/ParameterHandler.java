@@ -31,10 +31,10 @@ public class ParameterHandler {
     private int numOfApps;
     private String numberOfUsersPerRegion;
     public long totalRequests;
-    private final double alpha = 0.6;
+    private final double alpha = 1; //for all
     private final double cloudDelay = 400; //ms
     final double serviceDelayPerRegion = 0.01; //ms
-    private final double serviceRate = 2000; // 57
+    private final double serviceRate = 3010; // 57
     private final String capacityOfMec = "1000"; //should be 1000
     //------------------- demand of every request of app
     private final int demandOfRequest = 2;
@@ -141,7 +141,10 @@ public class ParameterHandler {
             A_region_V = A_region_V + calculateAvrgRequestArrivalRate(appIndex, whichRegion, list);
             //System.out.println("A_region_V : " + A_region_V);
         }
-        if (serviceRate <= A_region_V) throw new IllegalArgumentException();
+        if (serviceRate <= A_region_V){
+            System.out.println("A_region_V : " + A_region_V);
+            throw new IllegalArgumentException();
+        }
         else{
             t = 1 / (serviceRate - A_region_V);
             //System.out.println("service time : " + t);
