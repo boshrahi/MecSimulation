@@ -6,6 +6,7 @@ import model.SigmaModel;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * This class handles all math parameters in paper and calculate them
@@ -26,15 +27,15 @@ import java.util.List;
 
 public class ParameterHandler {
 
-    private int numOfVRCPerApp;
-    private int numOfUsers;
-    private int numOfApps;
+    public int numOfVRCPerApp;
+    public int numOfUsers;
+    public int numOfApps;
     private String numberOfUsersPerRegion;
     public long totalRequests;
     private final double alpha = 1; //for all
     private final double cloudDelay = 400; //ms
     final double serviceDelayPerRegion = 0.01; //ms
-    private final double serviceRate = 3010; // 57
+    private final double serviceRate = 109000; //3010; // 57
     private final String capacityOfMec = "1000"; //should be 1000
     //------------------- demand of every request of app
     private final int demandOfRequest = 2;
@@ -54,6 +55,7 @@ public class ParameterHandler {
         this.numberOfUsersPerRegion = calculateNumberOfUsersPerRegion(numOfUsers, graphModel);
         this.landaPerApp = calculateLandaPerAppForUsers(numOfApps);
         this.totalRequests = calculateTotalRequests(numberOfUsersPerRegion, landaPerApp);
+        //this.totalRequests = 11378;
         initializeCapacityOfMEC();
 
     }
@@ -76,7 +78,7 @@ public class ParameterHandler {
         for (int i = 0; i < arr.length; i++) {
             appCap[i] = Integer.valueOf(arr[i]);
         }
-        appCap[whichRegion] = appCap[whichRegion] - demandOfRequest;
+        appCap[whichRegion] = appCap[whichRegion] - getDemandOfApp(whichApp);
 
         String updatedCap = "";
         for (int i = 0; i < appCap.length; i++) {
@@ -84,6 +86,12 @@ public class ParameterHandler {
         }
         vmCapacityPerApp.remove(whichApp);
         vmCapacityPerApp.add(whichApp, updatedCap);
+    }
+
+    private int getDemandOfApp(int whichApp) {
+        if (whichApp == 0) return demandOfRequest;
+        else if (whichApp == 1) return 2 * demandOfRequest;
+        else return 3*demandOfRequest;
     }
 
     public double getCapacityOfMEC(int whichRegion, int whichApp) {
@@ -236,24 +244,37 @@ public class ParameterHandler {
     private String calculateLandaPerAppForUsers(int numOfApps) {
 //        String landaPerApp = "";
 //        Random rand = new Random();
-//        int  n =  + 1;
+//        int randomNum = (1+ new Random().nextInt(5));
 //        for (int i = 0 ; i < numOfApps ; i ++){
-//            landaPerApp = landaPerApp + (rand.nextInt(3) +1) + ",";
+//            landaPerApp = landaPerApp + randomNum + ",";
 //        }
-        String landaPerApp = "2,3"; // felan 2 ta app darim 2 3
+        String landaPerApp = "2,3"; // for two app for now
         return landaPerApp;
     }
 
     private String calculateNumberOfUsersPerRegion(int numOfUsers, GraphModel graphModel) {
-        int num_node = graphModel.nodeNum;
-        // tedad user ha be sorat yeksan dar kol graph tozi shode and
-        int numberOfUserPerRegion = numOfUsers / num_node;
-        String userNumber = "";
-        for (int i = 0; i < num_node; i++) {
-            userNumber = userNumber + numberOfUserPerRegion + ",";
-        }
-        return userNumber;
+//        int num_node = graphModel.nodeNum;
+//        String userNumber = "";
+//        for (int i = 0; i < num_node; i++) {
+//            int randomNum = (1+ new Random().nextInt(10));
+//            int numberOfUserPerRegion = (numOfUsers / num_node)* randomNum;
+//            userNumber = userNumber + numberOfUserPerRegion + ",";
+//        }
+//        return userNumber;
 
+        //Sago
+        //return "250,1000,700,150,250,433,70,150,250,100,7,150,350,244,7000,10,50,144";
+        //Noel
+        return "25,100,70,15,25,43,7,15,25,10,2,15,35,24,700,1,5,14,7";
+        //Test
+        //return "250,1000,700,150";
+
+    }
+    private double getNumberOfUserPerRegion(int node) {
+        // Landa
+        String[] users = numberOfUsersPerRegion.split(",");
+        double app_landa = Double.parseDouble(users[node]);
+        return app_landa;
     }
 
     public boolean isPlacementHaveQ(int q_server, String[] placement) {
@@ -261,5 +282,11 @@ public class ParameterHandler {
             if (placement[i].equals(String.valueOf(q_server))) return true;
         }
         return false;
+    }
+
+    public double getDemandOfNode(int nodeIndex,int appIndex) {
+        double numberPerRegion = getNumberOfUserPerRegion(nodeIndex);
+        double landaPerApp = getLandaPerApp(appIndex);
+        return numberPerRegion*landaPerApp;
     }
 }

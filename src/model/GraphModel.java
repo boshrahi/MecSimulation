@@ -23,6 +23,10 @@ public class GraphModel {
         adjacency[source].add(target);
         adjacency[target].add(source);
     }
+    public LinkedList<Integer>[] getAdjacency(){
+
+        return adjacency;
+    }
 
     public long[][] makeGraphMatrix() {
         long graph[][] = new long[nodeNum][nodeNum];
