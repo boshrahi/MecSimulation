@@ -28,7 +28,7 @@ public class Simulation2 {
     private int numOfVRCPerApp;
     private int numOfUsers;
     private int numOfApps;
-    private GraphModel graph;
+    public GraphModel graph;
     ParameterHandler paramHandler;
     //private String COMBINATOR_PATHS = "/home/boshra/Documents/Java/java-workspace/MecSimulation/combination_graphs/";
     private String SHORTEST_PATHS = "./shortest_paths/";
@@ -45,6 +45,15 @@ public class Simulation2 {
         this.numOfUsers = numOfUsers;
         this.numOfVRCPerApp = numOfVRCPerApp;
         paramHandler = new ParameterHandler(numOfVRCPerApp, numOfUsers, numOfApps, graph.getGraphModel());
+    }
+    Simulation2(String graphType, int numOfVRCPerApp, int numOfUsers, int numOfApps, ParameterHandler parameterHandler){
+        this.graphType = graphType;
+        Graph graph = new Graph(graphType);
+        this.graph = graph.getGraphModel();
+        this.numOfApps = numOfApps;
+        this.numOfUsers = numOfUsers;
+        this.numOfVRCPerApp = numOfVRCPerApp;
+        this.paramHandler = parameterHandler;
     }
 
     /*
@@ -68,7 +77,7 @@ public class Simulation2 {
     /*
      * calculate time average for equation 8 in paper
      * */
-    private double calculateTimeAverage(List<SigmaModel> sigmaModels) {
+    public double calculateTimeAverage(List<SigmaModel> sigmaModels) {
         double time = 0;
         double T_CLOUD_M;
         double T_SERVICE_V;
@@ -142,7 +151,7 @@ public class Simulation2 {
     /*
      * Procedure for assign all overall requests
      * */
-    private List<SigmaModel> assignmentProcedure(String placement, HashSet<Integer> alreadyDeployedApps, long numberOfRequests) {
+    public List<SigmaModel> assignmentProcedure(String placement, HashSet<Integer> alreadyDeployedApps, long numberOfRequests) {
         String[] vm_place_str = placement.split(",");
         int[] vm_place = Arrays.stream(vm_place_str).mapToInt(Integer::parseInt).toArray();
         int choosen_Mec;
@@ -195,7 +204,7 @@ public class Simulation2 {
                     choosen_Mec = -1;
                     index_choosen = -1;
                     umega_min = Double.POSITIVE_INFINITY;
-                    //ShortestPath shortestPath = graph.dijkstra(graph.makeGraphMatrix(), nodeIndex);
+                    //ShortestPath shortestPath = graph.dijkstra(graph.makeGraphMatrix(), nodeName);
 
                     for (int vmIndex = 0; vmIndex < numOfVRCPerApp; vmIndex++) {
                         int selectedMEC = vm_place[INDEX + vmIndex];
@@ -211,7 +220,7 @@ public class Simulation2 {
                     if (choosen_Mec != -1 && matrix_request[appIndex][nodeIndex] > 0) {
                         long total = paramHandler.calculateRequestOfAppInRegionV(appIndex, nodeIndex);
                         matrix_request[appIndex][nodeIndex]--;
-                        //System.out.println(matrix_request[appIndex][nodeIndex]);
+                        //System.out.println(matrix_request[appIndex][nodeName]);
                         numberOfRequests--;
                         if (numberOfRequests < 0) {
                             System.out.println(numberOfRequests);
