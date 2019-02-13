@@ -109,7 +109,7 @@ public class OneHop {
     }
 
     private String getPlacementFromVotes(List<int[]> list) {
-        String placement= "";
+        String total_placement= "";
         List<MaxApp> list2 = new ArrayList<>();
         for (int appIndex = 0; appIndex < parameterHandler.numOfApps; appIndex++) {
             int[] appVotes = list.get(appIndex);
@@ -135,10 +135,11 @@ public class OneHop {
             }
         }
         for (int appIndex = 0; appIndex < parameterHandler.numOfApps; appIndex++) {
+            String app_placement = "";
             for (int vmIndex = 0; vmIndex <parameterHandler.numOfVRCPerApp; vmIndex++){
                 int max_vote =0;
                 int candidateNode=0;
-                int candidateIndex=0;
+                int candidateIndex=-1;
                 for (int indexList=0; indexList < list2.size(); indexList++){
                    MaxApp maxApp = list2.get(indexList);
                    if (maxApp.appNum == appIndex && maxApp.numberOfVotes>max_vote){
@@ -147,12 +148,37 @@ public class OneHop {
                        candidateIndex = indexList;
                    }
                 }
-                list2.remove(candidateIndex);
-                placement = placement + candidateNode + ",";
+                if (candidateIndex!=-1) {
+                    list2.remove(candidateIndex);
+                    app_placement = app_placement + candidateNode + ",";
+                }
             }
+            app_placement = checkMissingVmsAdd(app_placement);
+            total_placement = total_placement + app_placement;
         }
-        System.out.println("One Hop Placement : " + placement);
-        return placement;
+        System.out.println("One Hop Placement : " + total_placement);
+        return total_placement;
+    }
+
+    private String checkMissingVmsAdd(String placement) {
+
+        String[] splited = placement.split(",");
+        int[] splited_int = new int[splited.length];
+        for (int i=0; i<splited.length; i++){
+            splited_int[i] = Integer.valueOf(splited[i]);
+        }
+        //--------------------
+        if (splited.length == parameterHandler.numOfVRCPerApp) return placement;
+        else {
+            for (int vmIndex=0 ;vmIndex < parameterHandler.numOfVRCPerApp; vmIndex++){
+                Arrays.sort(splited_int);
+                int index = Arrays.binarySearch(splited_int, vmIndex);
+                if (index < 0) {
+                    placement = placement + vmIndex + ",";
+                }
+            }
+            return placement;
+        }
     }
 
     public double calculateAvgResponseTime(String placement) {
