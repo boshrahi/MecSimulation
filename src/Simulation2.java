@@ -26,7 +26,7 @@ public class Simulation2 {
 
     private String graphType;
     private int numOfVRCPerApp;
-    private int numOfUsers;
+    private double numOfUsers;
     private int numOfApps;
     public GraphModel graph;
     ParameterHandler paramHandler;

@@ -3,60 +3,105 @@ import utils.ParameterHandler;
 
 import java.util.*;
 
-public class OneHop {
+public class TwoHop {
     private GraphModel graphModel;
     private ParameterHandler parameterHandler;
     private LinkedList<Integer> adjacency[]; //Adjacency Lists
-    List<double[][]> Demands;
+    List<DemandModel[][]> Demands;
     List<List<DistanceModel>> distance;
     Simulation2 simulation2;
 
-    public OneHop(Simulation2 simulation2) {
+    public TwoHop(Simulation2 simulation2) {
         this.parameterHandler = simulation2.paramHandler;
         this.graphModel = simulation2.graph;
         this.adjacency = graphModel.getAdjacency();
+        //List<DemandModel[][]> Demands = new ArrayList<>();
         this.Demands = calculateDemandMatrices();
-        this.distance = calculateDistanceMatrices();
+        List<List<DistanceModel>> distance = new ArrayList<>();
+        this.distance = calculateDistanceMatrices(this.Demands);
         this.simulation2 = simulation2;
-
     }
 
-    private List<double[][]> calculateDemandMatrices() {
-        List<double[][]> list = new ArrayList<>();
+    private List<DemandModel[][]> calculateDemandMatrices() {
+        //Demand of One Hop neighbors
+        List<DemandModel[][]> list = new ArrayList<>();
+        DemandModel[][] demand_i = null;
 
         for (int nodeIndex = 0; nodeIndex < graphModel.nodeNum; nodeIndex++) {
+            int two_hop_counter = 0;
             LinkedList<Integer> neighbours = adjacency[nodeIndex];
-            double[][] demand_i = new double[parameterHandler.numOfApps][neighbours.size() + 1]; // #App #neighbours+1
+            // find two hop neighbours counter
+            for (int neIndex = 0; neIndex < neighbours.size(); neIndex++) {
+                int neighb = neighbours.get(neIndex);
+                two_hop_counter = two_hop_counter + adjacency[neighb].size() - 1;
+            }
+            demand_i = new DemandModel[parameterHandler.numOfApps][neighbours.size() + 1 + two_hop_counter]; // #App #neighbours+1
             for (int appIndex = 0; appIndex < parameterHandler.numOfApps; appIndex++) { // 2 apps for now
                 // 0 column is demand of own node
-                demand_i[appIndex][0] = parameterHandler.getDemandOfNode(nodeIndex, appIndex);
+                DemandModel demandModel = new DemandModel(parameterHandler.getDemandOfNode(nodeIndex, appIndex), nodeIndex, nodeIndex);
+                demand_i[appIndex][0] = demandModel;
                 for (int neIndex = 0; neIndex < neighbours.size(); neIndex++) {
                     int neighb = neighbours.get(neIndex);
-                    demand_i[appIndex][neIndex + 1] = parameterHandler.getDemandOfNode(neighb, appIndex);
+                    demandModel = new DemandModel(parameterHandler.getDemandOfNode(neighb, appIndex), neighb, nodeIndex);
+                    demand_i[appIndex][neIndex + 1] = demandModel;
+                }
+                // Two hop
+                int indexCounterTwoHop = neighbours.size() + 1;
+                for (int neIndex = 0; neIndex < neighbours.size(); neIndex++) {
+                    int neighb = neighbours.get(neIndex);
+                    LinkedList<Integer> neighbours_two = adjacency[neighb];
+                    for (int neIndex2 = 0; neIndex2 < neighbours_two.size(); neIndex2++) {
+                        int neighb2 = neighbours_two.get(neIndex2);
+                        if (nodeIndex != neighb2) {
+                            demandModel = new DemandModel(parameterHandler.getDemandOfNode(neighb2, appIndex), neighb2, neighb);
+                            demand_i[appIndex][indexCounterTwoHop] = demandModel;
+                            indexCounterTwoHop++;
+                        }
+                    }
                 }
             }
             list.add(demand_i);
-        }
+        }//
         return list;
     }
 
-    private List<List<DistanceModel>> calculateDistanceMatrices() {
+    private List<List<DistanceModel>> calculateDistanceMatrices(List<DemandModel[][]> demands) {
         List<List<DistanceModel>> list1 = new ArrayList<>();
-
         for (int nodeIndex = 0; nodeIndex < graphModel.nodeNum; nodeIndex++) {
-            LinkedList<Integer> neighbours = adjacency[nodeIndex];
-            List<DistanceModel> list2 = new ArrayList<>();
-            DistanceModel distanceModel = new DistanceModel(0,nodeIndex);//init
-            list2.add(distanceModel);
-
-            for (int neIndex = 0; neIndex < neighbours.size(); neIndex++) {
-                int neighb = neighbours.get(neIndex);
-                distanceModel = new DistanceModel(getDistanceToNeighbour(neighb, nodeIndex),neighb);
-                list2.add(distanceModel);
+            List<DistanceModel> singleNodeList = new ArrayList<>();
+            DemandModel[][] matrix = Demands.get(nodeIndex);
+            int rowSize = matrix[0].length;
+            for (int demandIndex = 0; demandIndex < rowSize; demandIndex++) {
+                DemandModel demandModels = matrix[0][demandIndex]; // app 0 for example
+                DistanceModel distanceModel = new DistanceModel(getDistanceToNeighbour(demandModels.nodeName, demandModels.mediatorName) +
+                        getDistanceToNeighbour(demandModels.mediatorName, nodeIndex), demandModels.nodeName);
+                singleNodeList.add(distanceModel);
             }
-            list1.add(list2);
+            list1.add(singleNodeList);
         }
         return list1;
+
+//        for (int nodeIndex = 0; nodeIndex < graphModel.nodeNum; nodeIndex++) {
+//            LinkedList<Integer> neighbours = adjacency[nodeIndex];
+//            List<DistanceModel> list2 = new ArrayList<>();
+//            DistanceModel distanceModel = new DistanceModel(0, nodeIndex); //initilize
+//            list2.add(distanceModel);
+//
+//            for (int neIndex = 0; neIndex < neighbours.size(); neIndex++) {
+//                int neighb = neighbours.get(neIndex);
+//                distanceModel = new DistanceModel(getDistanceToNeighbour(neighb, nodeIndex), neighb);
+//                list2.add(distanceModel);
+//            }
+//            DemandModel[][] demandMatrix = demands.get(0);
+//            int rowSize = demandMatrix[0].length;
+//            for (int demandIndex = neighbours.size() + 1; demandIndex < rowSize; demandIndex++) {
+//                DemandModel demandModels = demandMatrix[0][demandIndex];
+//                distanceModel = new DistanceModel(getDistanceToNeighbour(demandModels.nodeName, demandModels.mediatorName) +
+//                        getDistanceToNeighbour(demandModels.mediatorName, nodeIndex), demandModels.nodeName);
+//                list2.add(distanceModel);
+//            }
+//            list1.add(list2);
+//        }
 
     }
 
@@ -71,7 +116,7 @@ public class OneHop {
         return 0;
     }
 
-    public double OneHopAlgorithm() {
+    public double TwoHopAlgorithm() {
         return calculateAvgResponseTime(findVMplacement());
     }
 
@@ -81,17 +126,17 @@ public class OneHop {
         for (int appIndex = 0; appIndex < parameterHandler.numOfApps; appIndex++) {
             int[] votes = new int[graphModel.nodeNum];
             for (int nodeIndex = 0; nodeIndex < graphModel.nodeNum; nodeIndex++) {
-                double[][] Demands_i = Demands.get(nodeIndex);
+                DemandModel[][] Demands_i = Demands.get(nodeIndex);
                 List<DistanceModel> Distance_i = distance.get(nodeIndex);
 //                double nodeSelfDemand = Demands_i[appIndex][0]; // node itself
 //                double maximum = nodeSelfDemand;
 //                int whichNodeToVote = Distance_i.get(0).nodeName; //vote for itself
                 double distance = Distance_i.get(1).distance;
-                double maximum = (Demands_i[appIndex][1]) / distance;
+                double maximum = (Demands_i[appIndex][1].demand) / distance;
                 int whichNodeToVote = Distance_i.get(1).nodeName;;
                 for (int index = 1; index < Distance_i.size(); index++) {
                     distance = Distance_i.get(index).distance;
-                    double relation = (Demands_i[appIndex][index]) / distance;
+                    double relation = (Demands_i[appIndex][index].demand) / distance;
                     if (maximum < relation) {
                         maximum = relation;
                         whichNodeToVote = Distance_i.get(index).nodeName;
@@ -104,7 +149,6 @@ public class OneHop {
 
         return getPlacementFromVotes(list);
     }
-
     private String getPlacementFromVotes(List<int[]> list) {
         String total_placement= "";
         List<MaxApp> list2 = new ArrayList<>();
@@ -138,12 +182,12 @@ public class OneHop {
                 int candidateNode=0;
                 int candidateIndex=-1;
                 for (int indexList=0; indexList < list2.size(); indexList++){
-                   MaxApp maxApp = list2.get(indexList);
-                   if (maxApp.appNum == appIndex && maxApp.numberOfVotes>max_vote){
-                       candidateNode = maxApp.nodeName;
-                       max_vote = maxApp.numberOfVotes;
-                       candidateIndex = indexList;
-                   }
+                    MaxApp maxApp = list2.get(indexList);
+                    if (maxApp.appNum == appIndex && maxApp.numberOfVotes>max_vote){
+                        candidateNode = maxApp.nodeName;
+                        max_vote = maxApp.numberOfVotes;
+                        candidateIndex = indexList;
+                    }
                 }
                 if (candidateIndex!=-1) {
                     list2.remove(candidateIndex);
@@ -153,10 +197,9 @@ public class OneHop {
             app_placement = checkMissingVmsAdd(app_placement);
             total_placement = total_placement + app_placement;
         }
-        System.out.println("One Hop Placement : " + total_placement);
+        System.out.println("Two Hop Placement : " + total_placement);
         return total_placement;
     }
-
     private String checkMissingVmsAdd(String placement) {
 
         String[] splited = placement.split(",");
@@ -177,7 +220,6 @@ public class OneHop {
             return placement;
         }
     }
-
     public double calculateAvgResponseTime(String placement) {
         double T_AVG = 0;
         HashSet<Integer> alreadyDeployedApps = new HashSet<>(parameterHandler.numOfApps);
