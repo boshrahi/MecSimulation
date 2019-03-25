@@ -5,6 +5,7 @@ import java.util.*;
 public class GraphModel {
     public int nodeNum;
     public int linkNum;
+    public String graphName;
     public List<EdgeModel> edgeModelList = new ArrayList<>();
     public List<NodeModel> nodeModelList = new ArrayList<>();
     public int maxLevel;

@@ -33,21 +33,27 @@ public class Graph {
         switch (type) {
             case SPIRALIGHT:
                 model = creatGraph(SPIRALIGHT);
+                model.graphName = SPIRALIGHT;
                 break;
             case NOEL:
                 model = creatGraph(NOEL);
+                model.graphName = NOEL;
                 break;
             case SAGO:
                 model = creatGraph(SAGO);
+                model.graphName = SAGO;
                 break;
             case SHENTEL:
                 model = creatGraph(SHENTEL);
+                model.graphName = SHENTEL;
                 break;
             case MISSOURI:
                 model = creatGraph(MISSOURI);
+                model.graphName = MISSOURI;
                 break;
             case TEST:
                 model = creatGraph(TEST);
+                model.graphName = TEST;
                 break;
         }
 
