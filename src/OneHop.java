@@ -167,7 +167,7 @@ public class OneHop {
         //--------------------
         if (splited.length == parameterHandler.numOfVRCPerApp) return placement;
         else {
-            for (int vmIndex=0 ;vmIndex < parameterHandler.numOfVRCPerApp; vmIndex++){
+            for (int vmIndex=0 ;vmIndex < parameterHandler.numOfVRCPerApp; vmIndex++){ // maybe enhance
                 Arrays.sort(splited_int);
                 int index = Arrays.binarySearch(splited_int, vmIndex);
                 if (index < 0) {

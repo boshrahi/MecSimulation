@@ -25,6 +25,11 @@ public class Graph {
     public static final String MISSOURI = "missouri";
     public static final String TEST = "test";
     public static final String NOEL = "noel";
+    public static final String G105 = "G105";
+    public static final String G200 = "G200";
+    public static final String G306 = "G306";
+    public static final String G406 = "G406";
+    public static final String G512 = "G512";
     public GraphModel model;
 
 
@@ -54,6 +59,26 @@ public class Graph {
             case TEST:
                 model = creatGraph(TEST);
                 model.graphName = TEST;
+                break;
+            case G105:
+                model = creatGraph(G105);
+                model.graphName = G105;
+                break;
+            case G200:
+                model = creatGraph(G200);
+                model.graphName = G200;
+                break;
+            case G306:
+                model = creatGraph(G306);
+                model.graphName = G306;
+                break;
+            case G406:
+                model = creatGraph(G406);
+                model.graphName = G406;
+                break;
+            case G512:
+                model = creatGraph(G512);
+                model.graphName = G512;
                 break;
         }
 
@@ -87,6 +112,21 @@ public class Graph {
                     break;
                 case MISSOURI:
                     jsonObject = (JSONObject) parser.parse(new FileReader("Missouri.json"));
+                    break;
+                case G105:
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Graph_(n3c6-b1 105).json"));
+                    break;
+                case G200:
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Graph_(rdb200 200).json"));
+                    break;
+                case G306:
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Graph_(mesh2e1 306).json"));
+                    break;
+                case G406:
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Graph_(lshp_406 406).json"));
+                    break;
+                case G512:
+                    jsonObject = (JSONObject) parser.parse(new FileReader("Graph_(dwa512 512).json"));
                     break;
             }
         } catch (Exception e) {

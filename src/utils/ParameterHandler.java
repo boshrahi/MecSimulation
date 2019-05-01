@@ -5,6 +5,7 @@ import model.GraphModel;
 import model.SigmaModel;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -34,7 +35,7 @@ public class ParameterHandler {
     private final double alpha = 1; //for all
     private final double cloudDelay = 1000; //ms
     final double serviceDelayPerRegion = 0.01; //ms
-    private final double serviceRate = 10000; //3010; // 57
+    private final double serviceRate = 40000; //3010; // 57
     private final String capacityOfMec = "1000"; //should be 1000
     //------------------- demand of every request of app
     private final int demandOfRequest = 2;
@@ -189,14 +190,24 @@ public class ParameterHandler {
 
     private long calculateTotalRequests(String numberOfUsersPerRegion, String landaPerApp) {
         String[] users_region = numberOfUsersPerRegion.split(",");
+        int sum=0;
+        for (String uss: users_region) {
+            int ii = Integer.valueOf(uss);
+            sum = sum + ii;
+        }
+
         String[] landa_app = landaPerApp.split(",");
         long total = 0;
-        for (int index = 0; index < graphModel.nodeNum; index++) {
-            for (int appIndex = 0; appIndex < landa_app.length; appIndex++) {
+        for (int index = 0; index < users_region.length; index++) {
+            for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
                 total = (long) (total + calculateRequestOfAppInRegionV(appIndex
                         , index));
             }
         }
+//        long t =0;
+//        for (int appIndex = 0 ; appIndex < numOfApps; appIndex++){
+//            t = (long) (t + sum*getLandaPerApp(appIndex));
+//        }
         return total;
     }
 
@@ -244,22 +255,22 @@ public class ParameterHandler {
 //        for (int i = 0 ; i < numOfApps ; i ++){
 //            landaPerApp = landaPerApp + randomNum + ",";
 //        }
-        String landaPerApp = "2,3"; // for two app for now
+        String landaPerApp = "6,5,4,3,2,1,2,"; // for two app for now
         return landaPerApp;
     }
 
     private String calculateNumberOfUsersPerRegion(int numOfUsers, GraphModel graphModel) {
-//        int num_node = graphModel.nodeNum;
-//        String userNumber = "";
-//        int max = 16;
-//        int min = 10;
-//        for (int i = 0; i < num_node; i++) {
-//
-//            int randomNum = new Random().nextInt(max - min + 1) + min;
-//            int numberOfUserPerRegion = randomNum;
-//            userNumber = userNumber + numberOfUserPerRegion + ",";
-//        }
-//        return userNumber;
+        int num_node = graphModel.nodeNum;
+        String userNumber = "";
+        int max = 20;
+        int min = 10;
+        for (int i = 0; i < num_node; i++) {
+
+            int randomNum = new Random().nextInt(max - min + 1) + min;
+            int numberOfUserPerRegion = randomNum;
+            userNumber = userNumber + numberOfUserPerRegion + ",";
+        }
+//       return userNumber;
         if (graphModel.graphName.equals(Graph.SPIRALIGHT)) {
             String str = "" + 53 * numOfUsers + "," + 61 * numOfUsers + "," + 50 * numOfUsers + "," + 55 * numOfUsers + "," + 68 * numOfUsers + "," + 61 * numOfUsers +
                     "," + 53 * numOfUsers + "," + 68 * numOfUsers + "," + 58 * numOfUsers + "," + 57 * numOfUsers + "," + 54 * numOfUsers + "," + 52 * numOfUsers +
@@ -275,30 +286,25 @@ public class ParameterHandler {
             String str = "" + 35 * numOfUsers + "," + 39 * numOfUsers + "," + 37 * numOfUsers + "," + 31 * numOfUsers + "," + 33 * numOfUsers + "," + 37 * numOfUsers +
                     "," + 36 * numOfUsers + "," + 40 * numOfUsers + "," + 32 * numOfUsers + "," + 37 * numOfUsers + "," + 34 * numOfUsers + "," + 40 * numOfUsers +
                     "," + 36 * numOfUsers + "," + 37 * numOfUsers + "," + 34 * numOfUsers + "," + 40 * numOfUsers + "," + 36 * numOfUsers + "," + 36 * numOfUsers + "," + 36 * numOfUsers+ "," + 36 * numOfUsers
-                    + "," + 37 * numOfUsers+ "," + 34 * numOfUsers+ "," + 40 * numOfUsers+ "," + 32 * numOfUsers+ "," + 39 * numOfUsers+ "," + 37 * numOfUsers+ "," + 35 * numOfUsers+ "," + 34 * numOfUsers+ ","
-                    + 34 * numOfUsers;
+                    + "," + 37 * numOfUsers+ "," + 34 * numOfUsers+ "," + 40 * numOfUsers+ "," + 32 * numOfUsers+ "," + 39 * numOfUsers+ "," + 37 * numOfUsers+ "," + 35 * numOfUsers+ "," + 34 * numOfUsers+ ",";
             return str;
 
         } else if (graphModel.graphName.equals(Graph.MISSOURI)) {
-                    String str = "" + 10 * numOfUsers + "," + 16 * numOfUsers + "," + 15 * numOfUsers + "," + 10 * numOfUsers + "," + 12 * numOfUsers + "," + 10 * numOfUsers +
+                    String str =
+                    "" + 10 * numOfUsers + "," + 16 * numOfUsers + "," + 15 * numOfUsers + "," + 10 * numOfUsers + "," + 12 * numOfUsers + "," + 10 * numOfUsers +
                     "," + 11 * numOfUsers + "," + 16 * numOfUsers + "," + 15 * numOfUsers + "," + 14 * numOfUsers + "," + 15 * numOfUsers + "," + 14 * numOfUsers +
-                    "," + 13 * numOfUsers + "," + 15 * numOfUsers + "," + 14 * numOfUsers + "," + 16 * numOfUsers + "," + 15 * numOfUsers + "," + 13 * numOfUsers + "," + 12 * numOfUsers+ "," + 10 * numOfUsers
-                    + "," + 12 * numOfUsers+ "," + 13 * numOfUsers+ "," + 12 * numOfUsers+ "," + 10 * numOfUsers+ "," + 13 * numOfUsers+ "," + 16 * numOfUsers+ "," + 14 * numOfUsers+ "," + 15 * numOfUsers
-                    + "," + 11 * numOfUsers + "," + 13 * numOfUsers+ "," + 10 * numOfUsers+ "," + 15 * numOfUsers+ "," + 14 * numOfUsers+ "," + 16 * numOfUsers+ "," + 12 * numOfUsers+ "," + 10 * numOfUsers
-                            + "," + 15 * numOfUsers
-                    + "," + 12 * numOfUsers+ "," + 10 * numOfUsers+ "," + 10 * numOfUsers+ "," + 12 * numOfUsers+ "," + 11 * numOfUsers+ "," + 10 * numOfUsers+ "," + 12 * numOfUsers+ "," + 10 * numOfUsers
-                    + "," + 11 * numOfUsers+ "," + 14 * numOfUsers+ "," + 16 * numOfUsers+ "," + 10 * numOfUsers+ "," + 13 * numOfUsers+ "," + 15 * numOfUsers+ "," + 11 * numOfUsers+ "," + 16 * numOfUsers
-                    + "," + 10 * numOfUsers+ "," + 16 * numOfUsers+ "," + 15 * numOfUsers+ "," + 14 * numOfUsers+ "," + 11 * numOfUsers+ "," + 16 * numOfUsers+ "," + 13 * numOfUsers+ "," + 13 * numOfUsers
-                    + "," + 15 * numOfUsers+ "," + 12 * numOfUsers+ "," + 13 * numOfUsers+ "," + 13 * numOfUsers+ "," + 16 * numOfUsers+ "," + 14 * numOfUsers+ "," + 16 * numOfUsers;
+                    "," + 13 * numOfUsers + "," + 15 * numOfUsers + "," + 14 * numOfUsers + "," + 16 * numOfUsers + "," + 15 * numOfUsers + "," + 13 * numOfUsers +
+                    "," + 12 * numOfUsers+ "," + 10 * numOfUsers + "," + 12 * numOfUsers+ "," + 13 * numOfUsers+ "," + 12 * numOfUsers+ "," + 10 * numOfUsers+
+                    "," + 13 * numOfUsers+ "," + 16 * numOfUsers+ "," + 14 * numOfUsers+ "," + 15 * numOfUsers + "," + 11 * numOfUsers + "," + 13 * numOfUsers+
+                    "," + 10 * numOfUsers+ "," + 15 * numOfUsers+ "," + 14 * numOfUsers+ "," + 16 * numOfUsers+ "," + 12 * numOfUsers+ "," + 10 * numOfUsers +
+                    "," + 15 * numOfUsers + "," + 12 * numOfUsers+ "," + 10 * numOfUsers+ "," + 10 * numOfUsers+ "," + 12 * numOfUsers+ "," + 11 * numOfUsers+
+                    "," + 10 * numOfUsers+ "," + 12 * numOfUsers+ "," + 10 * numOfUsers + "," + 11 * numOfUsers+ "," + 14 * numOfUsers+ "," + 16 * numOfUsers+
+                    "," + 10 * numOfUsers+ "," + 13 * numOfUsers+ "," + 15 * numOfUsers+ "," + 11 * numOfUsers+ "," + 16 * numOfUsers + "," + 10 * numOfUsers+
+                    "," + 16 * numOfUsers+ "," + 15 * numOfUsers+ "," + 14 * numOfUsers+ "," + 11 * numOfUsers+ "," + 16 * numOfUsers+ "," + 13 * numOfUsers+
+                    "," + 13 * numOfUsers + "," + 15 * numOfUsers+ "," + 12 * numOfUsers+ "," + 13 * numOfUsers+ "," + 13 * numOfUsers+ "," + 16 * numOfUsers+
+                     "," + 14 * numOfUsers;
             ;
             return str;
-            // Missouri
-//        return "3985,6807,6557,6779,3909,3673,3641,3321,3148,4639,5350,5783,3585,3213,6655,4301,3262,5825,4743,4663,6338,6588,5335,3330,6897,4976,6971," +
-//                "6201,5570,4785,4972,6779,5466,3310,5407,4210,4170,5024,3092,6396,4556,4155,3972,4999,4346,3437,3509,6406,4675,6572,4162,4311,4362,4908,6254," +
-//                "5885,6857,5947,5472,6254,5455,3885,3437,3843,5813,5759,6817,";//uniform 3000-7000
-//        return "483,337,164,170,138,244,441,489,54,279,347,123,104,470,117,295,412,173,441,413,301,499,85," +
-//                "134,222,83,62,437,445,109,373,66,82,191,248,174,67,121,349,80,348,88,344,218,395,95,366,420," +
-//                "216,421,139,403,90,303,192,220,233,376,407,471,78,366,75,53,478,200,346,"; //uniform 50 500
 
         } else if (graphModel.graphName.equals(Graph.NOEL)) {
             // Noel
@@ -306,13 +312,49 @@ public class ParameterHandler {
                     "," + 69 * numOfUsers + "," + 66 * numOfUsers + "," + 50 * numOfUsers + "," + 60 * numOfUsers + "," + 66 * numOfUsers + "," + 54 * numOfUsers +
                     "," + 68 * numOfUsers + "," + 42 * numOfUsers + "," + 60 * numOfUsers + "," + 55 * numOfUsers + "," + 47 * numOfUsers + "," + 66 * numOfUsers + "," + 48 * numOfUsers;
             return str;
-            //return "483,337,164,170,138,244,441,489,54,279,347,123,104,470,117,295,412,173,441,"; //5281 uniform 50 500
-            //return "50,50,48,40,43,59,69,66,50,60,66,54,68,42,60,55,47,66,48,"; //1041 uniform 40 70
+        }else if (graphModel.graphName.equals(Graph.G105)){
+            return "17,16,12,15,17,20,13,19,13,20,10,14,17,13,12,19,17,20,11,12,16,18,14,11,19,14,16,12,20,12,20,12,12,17,13,10,19,13,10,17,19,17,19,17,13,14,19,13,19,16," +
+                    "17,18,15,15,17,13,16,20,11,16,20,20,19,18,15,12,17,16,14,12,16,19,17,10,18,15,17,13,10,12,18,16,15,17,13,15,17,13,16,14,13,10,14,19,14,19,19,19,140,200,200,200,110,100,130,";
+        }else if (graphModel.graphName.equals(Graph.G200)){
+            return "17,17,18,18,20,11,11,17,19,17,15,15,19,12,14,10,15,19,13,17,13,18,15,16,13,11,13,17,18,18,12,10,12,13,14,12,16,10,14,14,16,14,10,18,14,14,10,14,11,10,19,15,16,14,15,19,18,19,10,13" +
+                    ",16,11,14,13,13,14,15,16,12,10,20,18,13,10,14,20,14,20,11,16,14,17,19,10,14,20,11,10,19,12,20,18,13,14,17,20,10,10,16,13,11,17,20,19,15,14,20,16,18,15,12,18,12,13,19,15,15,19,19,17,12" +
+                    ",19,17,13,20,10,12,11,18,18,11,18,15,10,14,16,14,13,16,13,18,16,16,12,15,20,10,10,11,17,14,17,16,11,14,16,12,14,12,11,10,10,12,19,12,18,18,15,14,12,20,13,20,11,15,13,13,11,17,15,16,16,14," +
+                    "15,13,12,12,11,15,20,18,11,20,19,14,11,19,13,13,13,";
+        }else if (graphModel.graphName.equals(Graph.G306)){
+            return "12,19,11,11,11,14,19,20,11,17,12,13,16,16,10,17,19,19,19,17,14,16,17,17,17,20,20,14,14,19,10,12,10,11,14,15,18,14,18,16,19,10,17,15,19,16,16,17,16,19,10,18,17,14,19,19" +
+                    ",13,19,19,20,13,10,20,15,19,18,11,17,18,14,17,15,11,11,10,20,20,14,17,12,20,18,13,10,10,10,15,17,11,11,17,18,16,19,15,15,11,15,20,11,15,13,20,10,20,13,15,16,19,14,20,15,16" +
+                    ",11,10,17,11,19,10,15,12,10,11,13,14,20,10,18,20,11,13,16,16,15,10,16,16,16,14,20,13,19,20,10,19,17,12,19,15,12,14,19,19,18,10,19,19,12,11,17,14,18,13,12,20,16,16,11,20,11," +
+                    "15,19,19,19,17,13,13,10,20,12,18,11,20,20,17,20,17,13,12,13,13,16,14,16,20,11,16,19,11,16,15,20,20,20,17,15,20,14,20,11,13,15,15,16,17,13,20,11,19,15,10,11,13,11,18,14,10," +
+                    "19,15,15,19,15,12,19,19,19,18,19,15,14,14,16,12,15,15,15,14,12,17,10,18,19,17,10,13,19,10,16,13,11,17,16,16,10,20,12,13,11,17,19,18,20,11,18,18,10,19,20,16,15,14,10,13,15," +
+                    "20,14,10,12,18,16,10,12,15,14,17,19,10,10,12,17,12,16,16,20,14,14,";
+        }else if (graphModel.graphName.equals(Graph.G406)){
+            return "12,15,20,11,11,10,18,18,20,10,18,13,19,19,17,13,18,11,13,20,14,17,20,12,16,17,19,18,18,20,17,20,13,19,20,14,16,15,14,11,16,18,18,19,10,18,13,10,12,17,12,18,13,12,14,15,16,19,13," +
+                    "15,20,10,12,15,16,19,17,20,10,12,18,12,10,20,20,20,10,14,13,15,20,11,14,15,13,16,17,16,19,10,19,19,20,12,16,14,11,17,15,12,12,16,10,19,16,20,20,13,12,16,18,16,16,13,17,17,20,13,15," +
+                    "20,17,11,16,19,15,10,12,17,16,12,17,11,10,12,16,12,12,19,12,15,10,19,17,20,16,20,10,10,19,14,20,16,13,17,12,16,18,17,20,17,20,16,13,12,11,11,20,14,19,10,16,11,15,13,14,14,15,19,13," +
+                    "11,11,17,14,11,18,10,13,11,20,15,20,16,15,12,16,12,16,18,19,20,11,18,16,16,20,20,14,11,12,20,16,20,10,12,13,10,13,20,13,11,15,20,18,20,17,19,20,18,14,14,10,15,18,10,13,17,19,10,18," +
+                    "11,20,14,13,13,15,10,16,13,12,18,17,11,15,17,11,15,17,15,13,16,18,18,15,11,11,16,13,10,13,10,14,19,10,11,10,12,11,19,14,17,11,12,18,12,10,20,13,18,11,10,15,16,20,17,18,12,12,10,17," +
+                    "14,14,12,11,13,18,10,16,20,12,19,12,16,13,10,15,11,17,12,16,13,18,17,18,12,12,18,20,10,19,12,10,11,16,10,20,14,11,20,12,18,13,14,12,10,16,19,17,15,16,14,16,18,17,13,18,13,16,16,11," +
+                    "10,14,11,16,18,19,17,20,20,17,13,10,14,18,13,10,18,18,12,10,11,19,12,12,11,20,11,19,19,17,11,18,14,15,15,19,13,16,10,20,12,16,14,18,12,18,20,";
+        }else if (graphModel.graphName.equals(Graph.G512)){
+            return "11,13,14,16,10,12,18,10,10,10,19,17,20,11,10,14,10,11,19,11,18,20,15,16,11,14,17,15,17,20,15,18,11,11,11,14,12,17,20,17,20,20,13,12,10,20,16,19,14,19,20,14,14,14,16" +
+                    ",10,16,18,18,12,11,11,12,10,14,11,19,17,14,12,12,12,20,20,11,18,18,11,15,19,19,10,19,18,19,13,12,14,11,15,13,17,10,20,10,13,10,12,19,17,14,20,17,10,10,12,19,19,15,12" +
+                    ",20,15,15,20,15,12,13,20,11,12,11,10,13,15,16,13,16,17,14,20,20,17,12,20,12,14,12,20,18,16,10,15,16,11,14,10,13,17,18,18,14,11,14,10,16,19,12,13,20,19,20,17,13,15,19," +
+                    "19,13,12,12,13,10,11,14,18,17,12,10,15,17,16,18,11,15,14,20,18,15,17,10,11,16,14,11,16,19,10,11,17,14,18,12,19,17,18,18,20,13,13,13,16,20,17,15,18,16,17,11,16,12,10," +
+                    "12,19,11,18,14,12,11,16,18,16,13,20,11,14,19,10,13,16,15,10,12,16,11,19,14,16,19,11,12,20,19,16,14,15,18,20,18,11,10,19,12,15,20,16,10,17,14,13,12,11,11,17,20,16,15," +
+                    "18,11,10,20,17,17,15,19,20,18,16,13,11,19,18,13,15,18,10,18,19,18,12,16,12,15,15,14,17,18,10,20,17,20,12,16,14,11,17,10,18,18,13,15,17,13,20,19,18,14,12,16,14,17,11," +
+                    "14,19,11,19,11,18,16,19,20,12,15,11,16,12,16,19,11,15,10,10,10,15,10,12,18,12,19,18,20,13,13,15,12,18,13,16,18,18,19,19,19,15,17,12,12,18,12,18,15,15,16,18,10,14,18," +
+                    "11,16,10,17,16,16,20,12,12,14,18,14,20,20,17,16,17,13,16,16,17,14,15,19,10,16,19,17,10,17,10,17,19,10,17,17,15,12,11,10,19,15,15,12,16,13,12,15,11,20,10,14,17,13,20," +
+                    "20,10,16,11,10,14,16,10,14,19,18,20,17,11,13,15,18,18,11,15,20,11,13,17,19,17,17,15,18,12,12,16,20,16,16,20,15,19,10,10,10,12,11,11,13,15,20,15,20,20,18,13,13,19,20," +
+                    "14,18,17,20,18,15,11,13,15,19,12,10,14,10,19,16,11,";
         }
-        return null;
+        //Exponential Distribution
+        return userNumber;
 
     }
 
+    public double getNextExponential(Random rand) {
+        return  Math.log(1-rand.nextDouble())/(-1.5);
+    }
     private double getNumberOfUserPerRegion(int node) {
         // Landa
         String[] users = numberOfUsersPerRegion.split(",");
