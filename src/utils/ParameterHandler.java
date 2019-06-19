@@ -234,7 +234,7 @@ public class ParameterHandler {
                 return model.fraction * calculateRequestOfAppInRegionV(whichApp, fromRegion) * distance;
             }
         }
-        return time;
+         return time;
 
     }
 
@@ -255,7 +255,7 @@ public class ParameterHandler {
 //        for (int i = 0 ; i < numOfApps ; i ++){
 //            landaPerApp = landaPerApp + randomNum + ",";
 //        }
-        String landaPerApp = "6,5,4,3,2,1,2,"; // for two app for now
+        String landaPerApp = "3,1"; // for two app for now
         return landaPerApp;
     }
 
@@ -314,7 +314,7 @@ public class ParameterHandler {
             return str;
         }else if (graphModel.graphName.equals(Graph.G105)){
             return "17,16,12,15,17,20,13,19,13,20,10,14,17,13,12,19,17,20,11,12,16,18,14,11,19,14,16,12,20,12,20,12,12,17,13,10,19,13,10,17,19,17,19,17,13,14,19,13,19,16," +
-                    "17,18,15,15,17,13,16,20,11,16,20,20,19,18,15,12,17,16,14,12,16,19,17,10,18,15,17,13,10,12,18,16,15,17,13,15,17,13,16,14,13,10,14,19,14,19,19,19,140,200,200,200,110,100,130,";
+                    "17,18,15,15,17,13,16,20,11,16,20,20,19,18,15,12,17,16,14,12,16,19,17,10,18,15,17,13,10,12,18,16,15,17,13,15,17,13,16,14,13,10,14,19,14,19,19,19,140,20,20,20,11,10,13,";
         }else if (graphModel.graphName.equals(Graph.G200)){
             return "17,17,18,18,20,11,11,17,19,17,15,15,19,12,14,10,15,19,13,17,13,18,15,16,13,11,13,17,18,18,12,10,12,13,14,12,16,10,14,14,16,14,10,18,14,14,10,14,11,10,19,15,16,14,15,19,18,19,10,13" +
                     ",16,11,14,13,13,14,15,16,12,10,20,18,13,10,14,20,14,20,11,16,14,17,19,10,14,20,11,10,19,12,20,18,13,14,17,20,10,10,16,13,11,17,20,19,15,14,20,16,18,15,12,18,12,13,19,15,15,19,19,17,12" +
@@ -347,14 +347,10 @@ public class ParameterHandler {
                     "20,10,16,11,10,14,16,10,14,19,18,20,17,11,13,15,18,18,11,15,20,11,13,17,19,17,17,15,18,12,12,16,20,16,16,20,15,19,10,10,10,12,11,11,13,15,20,15,20,20,18,13,13,19,20," +
                     "14,18,17,20,18,15,11,13,15,19,12,10,14,10,19,16,11,";
         }
-        //Exponential Distribution
         return userNumber;
 
     }
 
-    public double getNextExponential(Random rand) {
-        return  Math.log(1-rand.nextDouble())/(-1.5);
-    }
     private double getNumberOfUserPerRegion(int node) {
         // Landa
         String[] users = numberOfUsersPerRegion.split(",");
@@ -373,5 +369,17 @@ public class ParameterHandler {
         double numberPerRegion = getNumberOfUserPerRegion(nodeIndex);
         double landaPerApp = getLandaPerApp(appIndex);
         return numberPerRegion * landaPerApp;
+    }
+
+    public double calculateMAXdelayOfRequest(int Vnode, int Unode, int app, List<SigmaModel> sigmaModels) {
+        double service_t = 0;
+        long distance = graphModel.dijkstra(graphModel.makeGraphMatrix(), Vnode).shorestDist[Unode];
+        for (int sigma = 0; sigma < sigmaModels.size(); sigma++) {
+            SigmaModel model = sigmaModels.get(sigma);
+            if (model.source == Vnode && model.target == Unode && model.app == app) {
+                return distance;
+            }
+        }
+        return 0;
     }
 }

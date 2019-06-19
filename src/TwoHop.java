@@ -10,6 +10,8 @@ public class TwoHop {
     List<DemandModel[][]> Demands;
     List<List<DistanceModel>> distance;
     Simulation2 simulation2;
+    private long end;
+    private long start;
 
     public TwoHop(Simulation2 simulation2) {
         this.parameterHandler = simulation2.paramHandler;
@@ -67,18 +69,23 @@ public class TwoHop {
 
     private List<List<DistanceModel>> calculateDistanceMatrices(List<DemandModel[][]> demands) {
         List<List<DistanceModel>> list1 = new ArrayList<>();
+        double t_one, t_two,temp, max_dis = 0;
         for (int nodeIndex = 0; nodeIndex < graphModel.nodeNum; nodeIndex++) {
             List<DistanceModel> singleNodeList = new ArrayList<>();
             DemandModel[][] matrix = Demands.get(nodeIndex);
             int rowSize = matrix[0].length;
             for (int demandIndex = 0; demandIndex < rowSize; demandIndex++) {
                 DemandModel demandModels = matrix[0][demandIndex]; // app 0 for example
-                DistanceModel distanceModel = new DistanceModel(getDistanceToNeighbour(demandModels.nodeName, demandModels.mediatorName) +
-                        getDistanceToNeighbour(demandModels.mediatorName, nodeIndex), demandModels.nodeName);
+                t_one = getDistanceToNeighbour(demandModels.nodeName, demandModels.mediatorName);
+                t_two = getDistanceToNeighbour(demandModels.mediatorName, nodeIndex);
+                temp = t_one + t_two;
+                DistanceModel distanceModel = new DistanceModel(temp, demandModels.nodeName);
+                if (temp > max_dis) max_dis = temp;
                 singleNodeList.add(distanceModel);
             }
             list1.add(singleNodeList);
         }
+        System.out.println("Max Distance = Max Runtime = " + max_dis);
         return list1;
 
 //        for (int nodeIndex = 0; nodeIndex < graphModel.nodeNum; nodeIndex++) {
@@ -116,11 +123,12 @@ public class TwoHop {
         return 0;
     }
 
-    public double TwoHopAlgorithm() {
+    public Times TwoHopAlgorithm() {
         return calculateAvgResponseTime(findVMplacement());
     }
 
     public String findVMplacement() {
+        start = System.currentTimeMillis();
         String placement = null;
         List<int[]> list = new ArrayList<>();
         for (int appIndex = 0; appIndex < parameterHandler.numOfApps; appIndex++) {
@@ -198,6 +206,8 @@ public class TwoHop {
             total_placement = total_placement + app_placement;
         }
         System.out.println("Two Hop Placement : " + total_placement);
+        end = System.currentTimeMillis();
+        System.out.println("Central cloud sorting : " + (end-start));
         return total_placement;
     }
     private String checkMissingVmsAdd(String placement) {
@@ -208,19 +218,23 @@ public class TwoHop {
             splited_int[i] = Integer.valueOf(splited[i]);
         }
         //--------------------
-        if (splited.length == parameterHandler.numOfVRCPerApp) return placement;
+        int len = splited_int.length;
+        if (len == parameterHandler.numOfVRCPerApp) return placement;
         else {
-            for (int vmIndex=0 ;vmIndex < parameterHandler.numOfVRCPerApp; vmIndex++){
-                Arrays.sort(splited_int);
+            Arrays.sort(splited_int);
+            int vmIndex = 0;
+            while (len != parameterHandler.numOfVRCPerApp){
                 int index = Arrays.binarySearch(splited_int, vmIndex);
                 if (index < 0) {
                     placement = placement + vmIndex + ",";
+                    len++;
                 }
+                vmIndex++;
             }
             return placement;
         }
     }
-    public double calculateAvgResponseTime(String placement) {
+    public Times calculateAvgResponseTime(String placement) {
         double T_AVG = 0;
         HashSet<Integer> alreadyDeployedApps = new HashSet<>(parameterHandler.numOfApps);
         for (int appIndex = 0; appIndex < parameterHandler.numOfApps; appIndex++) {
@@ -228,7 +242,6 @@ public class TwoHop {
         }
         List<SigmaModel> sigmaModels = simulation2.assignmentProcedure(placement, alreadyDeployedApps, parameterHandler.totalRequests);
         //calculate T_AVG equation 8
-        T_AVG = simulation2.calculateTimeAverage(sigmaModels);
-        return T_AVG;
+        return simulation2.calculateTimeAverage(sigmaModels);
     }
 }

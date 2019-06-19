@@ -59,10 +59,11 @@ public class Simulation2 {
     /*
      * Algorithm 1 in paper
      * */
-    double optimalEnumerationPlacementAlgorithm(String placement) {
+    Times optimalEnumerationPlacementAlgorithm(String placement) {
 
         //String placement;
         double T_AVG = 0;
+        Times times = new Times();
         String finalPLACEMENT = "";
         HashSet<Integer> alreadyDeployedApps = new HashSet<>(numOfApps);
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
@@ -70,19 +71,24 @@ public class Simulation2 {
         }
         List<SigmaModel> sigmaModels = assignmentProcedure(placement, alreadyDeployedApps, paramHandler.totalRequests);
         //calculate T_AVG equation 8
-        T_AVG = calculateTimeAverage(sigmaModels);
-        return T_AVG;
+        times = calculateTimeAverage(sigmaModels);
+        return times;
     }
 
     /*
      * calculate time average for equation 8 in paper
      * */
-    public double calculateTimeAverage(List<SigmaModel> sigmaModels) {
+    public Times calculateTimeAverage(List<SigmaModel> sigmaModels) {
         double time = 0;
         double T_CLOUD_M;
         double T_SERVICE_V;
         double AVG_M_V;
-
+        double max_t = 0;
+        double min_t = Double.POSITIVE_INFINITY;
+        double t_avg_local_reqs = 0;
+        int u_node_max = -1;
+        int v_node_max = -1;
+        Times times = new Times();
         for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
             double SIGMA = 0;
             double t = 0;
@@ -90,12 +96,24 @@ public class Simulation2 {
                 double T_M_VU = 0;
 
                 for (int nodeUIndex = 0; nodeUIndex < graph.nodeNum; nodeUIndex++) {
-                    //double distance = paramHandler.distanceDelay(nodeVIndex,nodeUIndex,appIndex);
                     T_M_VU = T_M_VU + paramHandler.calculateNetworkDelayBetweenTwoRegions(nodeVIndex, nodeUIndex, appIndex, sigmaModels);
+                    t = paramHandler.calculateMAXdelayOfRequest(nodeVIndex,nodeUIndex,appIndex, sigmaModels);
+                    //if (t!=0) System.out.println(nodeVIndex + " "+ nodeUIndex);
+                    if (t > max_t){ // for max delay
+                        max_t = t;
+
+                        //System.out.println(nodeVIndex +","+ nodeUIndex);
+                    }
+                    t = paramHandler.calculateMAXdelayOfRequest(nodeVIndex,nodeUIndex,appIndex, sigmaModels);
+                    if (t < min_t){ // for min delay
+                        min_t = t;
+                    }
+
                 }
                 T_SERVICE_V = paramHandler.calculateServerDelay(nodeVIndex, sigmaModels);
                 AVG_M_V = paramHandler.calculateAvrgRequestArrivalRate(appIndex, nodeVIndex, sigmaModels);
-                time = time + T_M_VU + (T_SERVICE_V * AVG_M_V);
+                double t1 = T_M_VU + (T_SERVICE_V * AVG_M_V);
+                time = time + t1;
                 if (time == Double.POSITIVE_INFINITY) {
                     System.out.println(T_M_VU);
                     System.out.println(T_SERVICE_V);
@@ -110,8 +128,13 @@ public class Simulation2 {
                     throw new IllegalArgumentException();
                 }
             }
+//            System.out.println("MAX delay of a request: " + max_t);
+//            System.out.println("MIN delay of a request: " + min_t);
+            times.t_max_single_req = max_t;
+            times.t_min_single_req = min_t;
+            //System.out.println(max_t+","+v_node_max+" "+u_node_max);
+            times.t_avg_local_reqs = time / paramHandler.totalRequests;
             T_CLOUD_M = paramHandler.calculateDelayOfCloudPerApp(appIndex);
-
             for (int nodeVIndex = 0; nodeVIndex < graph.nodeNum; nodeVIndex++) {
                 for (int nodeUIndex = 0; nodeUIndex < graph.nodeNum; nodeUIndex++) {
                     SIGMA = SIGMA + getSigmaV_U_M(nodeVIndex, nodeUIndex, appIndex, sigmaModels);
@@ -130,7 +153,8 @@ public class Simulation2 {
 
         }
         time = time / paramHandler.totalRequests;
-        return time;
+        times.t_min = time;
+        return times;
     }
 
     /*
@@ -296,7 +320,7 @@ public class Simulation2 {
     /*
      * Algorithm 2 in paper
      * */
-    public double latencyAwareHeuristicPlacementAlgorithm() {
+    public Times latencyAwareHeuristicPlacementAlgorithm() {
         LAHPAmodel lahpAModel = getLAHPAplacement();
         System.out.println("LAHPA placement : " + lahpAModel.placement);
         List<SigmaModel> sigmaModelList = assignmentProcedure(lahpAModel.placement, lahpAModel.alreadyDeployedApps, paramHandler.totalRequests);
@@ -446,7 +470,7 @@ public class Simulation2 {
      * Ensure T_min X_tild
      *
      * */
-    public double clusteringEnhancedHeuristicPlacementAlgorithm() {
+    public Times clusteringEnhancedHeuristicPlacementAlgorithm() {
         CEHPAmodel cehpAmodel = getClusteringPlacement();
         List<SigmaModel> list = assignmentProcedure(cehpAmodel.placement, cehpAmodel.alreadyDeployedApps, paramHandler.totalRequests);
         return calculateTimeAverage(list);
@@ -526,7 +550,8 @@ public class Simulation2 {
     }
 
 
-    public double substitutionEnhancedHeuristicPlacementAlgorithm() {
+    public Times substitutionEnhancedHeuristicPlacementAlgorithm() {
+        long startTime = System.currentTimeMillis();
         CEHPAmodel cehpAmodel = getClusteringPlacement();
         double T_min = Double.POSITIVE_INFINITY;
         String[] X = cehpAmodel.placement.split(",");
@@ -546,7 +571,8 @@ public class Simulation2 {
                     X_tild = X;
                     X_tild[INDEX] = String.valueOf(VRC);
                     List<SigmaModel> sigmaModels = assignmentProcedure(makePlacement(X_tild), alreadyDeployedApp, paramHandler.totalRequests);
-                    double T = calculateTimeAverage(sigmaModels);
+                    Times times = calculateTimeAverage(sigmaModels);
+                    double T = times.t_min;
                     if (T < T_min) {
                         T_min = T;
                         X_hat = X_tild;
@@ -554,9 +580,12 @@ public class Simulation2 {
                 }
             }
         }
-        List<SigmaModel> sigmaModels = assignmentProcedure(makePlacement(X_hat), alreadyDeployedApp, paramHandler.totalRequests);
-        calculateTimeAverage(sigmaModels);
-        return T_min;
+        String placement=makePlacement(X_hat);
+        List<SigmaModel> sigmaModels = assignmentProcedure(placement, alreadyDeployedApp, paramHandler.totalRequests);
+        System.out.println("SEHPA placement: "+ placement);
+        long endTime = System.currentTimeMillis();
+        System.out.println("Runtime of SEHPA = " + (endTime - startTime));
+        return calculateTimeAverage(sigmaModels);
 
     }
 
@@ -576,7 +605,8 @@ public class Simulation2 {
                 int choosenMec = -1;
                 ArrayList<Integer> cluster = Y_cluster.get(vmIndex);
                 for (int VRC : cluster) {
-                    double T_AVG = calculateTimeAverage(makeSigmaModelListForCluster(VRC, cluster, appIndex));
+                    Times times = calculateTimeAverage(makeSigmaModelListForCluster(VRC, cluster, appIndex));
+                    double T_AVG = times.t_min;
                     if (T_AVG < T_MIN) {
                         T_MIN = T_AVG;
                         choosenMec = VRC;
@@ -595,5 +625,28 @@ public class Simulation2 {
         }
         System.out.println("Clustering placement : " + X_total_str);
         return new CEHPAmodel(X_total_str, alreadyDeployedApp);
+    }
+    //----------------------------------------------------------------------------- random placement
+    public Times randomPlacementAlgorithm(){
+        String placement = getRandomPlace();
+        HashSet<Integer> alreadyDeployedApps = new HashSet<>(numOfApps);
+        for (int appIndex = 0; appIndex < numOfApps; appIndex++) {
+            alreadyDeployedApps.add(appIndex);
+        }
+        List<SigmaModel> list =assignmentProcedure(placement,alreadyDeployedApps,paramHandler.totalRequests);
+        return calculateTimeAverage(list);
+    }
+
+    private String getRandomPlace() {
+        String placement = "";
+        Random random = new Random();
+
+        for (int app = 0; app<numOfApps; app++){
+            for (int vm = 0; vm <numOfVRCPerApp; vm++){
+                placement = placement + random.nextInt(graph.nodeNum)+",";
+            }
+        }
+        System.out.println("Random Placement: "+ placement);
+        return placement;
     }
 }

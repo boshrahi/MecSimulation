@@ -1,5 +1,6 @@
 import cc.redberry.combinatorics.Combinatorics;
 import model.GraphModel;
+import model.Times;
 import model.VRCnodeModel;
 import utils.Graph;
 
@@ -22,8 +23,9 @@ public class Main {
 
     public static void main(String[] args) throws IOException {
 
-        final int numOfApps = 2;
-        int numOfVRCPerApp = 2;
+        int numOfApps = 2;
+        //int numOfVRCPerApp = 5;
+        int numOfUsers = 3;
 
         String graph;
         List<String> list;
@@ -31,92 +33,48 @@ public class Main {
         double T_MIN_LAHPA = 0;
         double T_MIN_CEHPA = 0;
         double T_MIN_SEHPA = 0;
+        long startTime = 0;
+        long endTime = 0;
+        long totalTime = 0;
+        Simulation2 simulation;
+        double two_hop_time, one_hop_time;
+        TwoHop twoHop;
+        OneHop oneHop;
+        Times times1;
+
+        /*
+        * landas: 3,1
+        * users <= 3000
+        *
+        * */
+
+        // uniform distribution of users
+        graph = Graph.NOEL;
+        for (int numOfVRCPerApp = 1; numOfVRCPerApp<=10; numOfVRCPerApp++){
+            simulation = new Simulation2(graph, numOfVRCPerApp, numOfUsers, numOfApps);
+            times1 = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
+            System.out.println("T_MIN_SEHPA : --------------->  " + times1.t_min);
+            System.out.println("MAX delay of a request: " + times1.t_max_single_req);
+            System.out.println("Average locals delay: " + times1.t_avg_local_reqs);
+
+            simulation = new Simulation2(graph, numOfVRCPerApp, numOfUsers, numOfApps);
+            oneHop = new OneHop(simulation);
+            times1 = oneHop.OneHopAlgorithm();
+            times1 = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
+            System.out.println("T_MIN_SEHPA : --------------->  " + times1.t_min);
+            System.out.println("MAX delay of a request: " + times1.t_max_single_req);
+            System.out.println("Average locals delay: " + times1.t_avg_local_reqs);
+
+        }
 
 
-        graph = Graph.TEST;
-        Simulation2 simulation = new Simulation2(graph, numOfVRCPerApp, 1, numOfApps);
-        initialAllPlacementsAndCalcOptimalTimes(numOfVRCPerApp, numOfApps, graph, 1);
-        TwoHop twoHop = new TwoHop(simulation);
-        double time = twoHop.TwoHopAlgorithm();
-        OneHop oneHop = new OneHop(simulation);
-        System.out.println("Two Hop response time : " + time);
-        double one_hop_time = oneHop.OneHopAlgorithm();
-        System.out.println("One Hop response time : " + one_hop_time);
-        T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
-        System.out.println("T_MIN_LAHPA : ------>  " + T_MIN_LAHPA);
-        T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
-        System.out.println("T_MIN_CEHPA : ------>  " + T_MIN_CEHPA);
-        T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
-        System.out.println("T_MIN_SEHPA : ------>  " + T_MIN_SEHPA);
-        list = Arrays.asList("VRC number : " + numOfVRCPerApp + " L_Time : " + T_MIN_LAHPA + "\n" +
-                " C_Time : " + T_MIN_LAHPA + "\n" + "S_Time : "+ T_MIN_SEHPA + "\n" +
-                "OneHop : " + one_hop_time + "\n" );
-        Files.write(file, list, StandardOpenOption.APPEND);
-        //------------------------------------------------------------------------------------------
-//        simulation = new Simulation2(graph, numOfVRCPerApp, 2, numOfApps);
-//        initialAllPlacementsAndCalcOptimalTimes(numOfVRCPerApp, numOfApps, graph, 2);
-//        oneHop = new OneHop(simulation);
-//        one_hop_time = oneHop.OneHopAlgorithm();
-//        System.out.println("One Hop response time : " + one_hop_time);
-//        T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_LAHPA : ------>  " + T_MIN_LAHPA);
-//        T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_CEHPA : ------>  " + T_MIN_CEHPA);
-//        T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_SEHPA : ------>  " + T_MIN_SEHPA);
-//        list = Arrays.asList("VRC number : " + numOfVRCPerApp + " L_Time : " + T_MIN_LAHPA + "\n" +
-//                " C_Time : " + T_MIN_LAHPA + "\n" + "S_Time : "+ T_MIN_SEHPA + "\n" +
-//                "OneHop : " + one_hop_time + "\n" );
-//        Files.write(file, list, StandardOpenOption.APPEND);
-//        //------------------------------------------------------------------------------------------
-//        simulation = new Simulation2(graph, numOfVRCPerApp, 3, numOfApps);
-//        initialAllPlacementsAndCalcOptimalTimes(numOfVRCPerApp, numOfApps, graph, 3);
-//        oneHop = new OneHop(simulation);
-//        one_hop_time = oneHop.OneHopAlgorithm();
-//        System.out.println("One Hop response time : " + one_hop_time);
-//        T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_LAHPA : ------>  " + T_MIN_LAHPA);
-//        T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_CEHPA : ------>  " + T_MIN_CEHPA);
-//        T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_SEHPA : ------>  " + T_MIN_SEHPA);
-//        list = Arrays.asList("VRC number : " + numOfVRCPerApp + " L_Time : " + T_MIN_LAHPA + "\n" +
-//                " C_Time : " + T_MIN_LAHPA + "\n" + "S_Time : "+ T_MIN_SEHPA + "\n" +
-//                "OneHop : " + one_hop_time + "\n" );
-//        Files.write(file, list, StandardOpenOption.APPEND);
-//        //-------------------------------------------------------------------------------------------
-//        simulation = new Simulation2(graph, numOfVRCPerApp, 4, numOfApps);
-//        initialAllPlacementsAndCalcOptimalTimes(numOfVRCPerApp, numOfApps, graph, 4);
-//        oneHop = new OneHop(simulation);
-//        one_hop_time = oneHop.OneHopAlgorithm();
-//        System.out.println("One Hop response time : " + one_hop_time);
-//        T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_LAHPA : ------>  " + T_MIN_LAHPA);
-//        T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_CEHPA : ------>  " + T_MIN_CEHPA);
-//        T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_SEHPA : ------>  " + T_MIN_SEHPA);
-//        list = Arrays.asList("VRC number : " + numOfVRCPerApp + " L_Time : " + T_MIN_LAHPA + "\n" +
-//                " C_Time : " + T_MIN_LAHPA + "\n" + "S_Time : "+ T_MIN_SEHPA + "\n" +
-//                "OneHop : " + one_hop_time + "\n" );
-//        Files.write(file, list, StandardOpenOption.APPEND);
-//        //--------------------------------------------------------------------------------------------
-//        simulation = new Simulation2(graph, numOfVRCPerApp, 10, numOfApps);
-//        initialAllPlacementsAndCalcOptimalTimes(numOfVRCPerApp, numOfApps, graph, 10);
-//        oneHop = new OneHop(simulation);
-//        one_hop_time = oneHop.OneHopAlgorithm();
-//        System.out.println("One Hop response time : " + one_hop_time);
-//        T_MIN_LAHPA = simulation.latencyAwareHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_LAHPA : ------>  " + T_MIN_LAHPA);
-//        T_MIN_CEHPA = simulation.clusteringEnhancedHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_CEHPA : ------>  " + T_MIN_CEHPA);
-//        T_MIN_SEHPA = simulation.substitutionEnhancedHeuristicPlacementAlgorithm();
-//        System.out.println("T_MIN_SEHPA : ------>  " + T_MIN_SEHPA);
-//        list = Arrays.asList("VRC number : " + numOfVRCPerApp + " L_Time : " + T_MIN_LAHPA + "\n" +
-//                " C_Time : " + T_MIN_LAHPA + "\n" + "S_Time : "+ T_MIN_SEHPA + "\n" +
-//                "OneHop : " + one_hop_time + "\n" );
-//        Files.write(file, list, StandardOpenOption.APPEND);
-        //----------------------------------------------------------------------------------------------
+
+//      list = Arrays.asList("Noel VRC number : " + numOfVRCPerApp + " L_Time : " + T_MIN_LAHPA + "\n" +
+//                    " C_Time : " + T_MIN_LAHPA + "\n" + "S_Time : " + T_MIN_SEHPA + "\n" +
+//                    "OneHop : " + one_hop_time + "\n" + "TwoHop : " + two_hop_time);
+//       Files.write(file, list, StandardOpenOption.APPEND);
+
+
 //        long startTime = System.nanoTime();
 //.         ....your program....
 //        long endTime = System.nanoTime();
@@ -162,8 +120,60 @@ public class Main {
             model2 = placementsForSingleApp.get(i);
             set2[i] = model2;
         }
+        // third app ---------------------------------
+        placementsForSingleApp = new ArrayList<>();
+        Combinatorics.combinations(graphModel.nodeNum, numOfVRCPerApp)
+                .stream()
+                .map(Main::combinChangeIntToString)
+                .forEach(Main::combinWritePlacementToList);
 
-        Combinatorics.tuples(set1, set2)
+        VRCnodeModel model3;
+        VRCnodeModel[] set3 = new VRCnodeModel[placementsForSingleApp.size()];
+        for (int i = 0; i < placementsForSingleApp.size(); i++) { // third App
+            model3 = placementsForSingleApp.get(i);
+            set3[i] = model3;
+        }
+        // forth app ---------------------------------
+        placementsForSingleApp = new ArrayList<>();
+        Combinatorics.combinations(graphModel.nodeNum, numOfVRCPerApp)
+                .stream()
+                .map(Main::combinChangeIntToString)
+                .forEach(Main::combinWritePlacementToList);
+
+        VRCnodeModel model4;
+        VRCnodeModel[] set4 = new VRCnodeModel[placementsForSingleApp.size()];
+        for (int i = 0; i < placementsForSingleApp.size(); i++) { // forth App
+            model4 = placementsForSingleApp.get(i);
+            set4[i] = model4;
+        }
+        // fifth app ---------------------------------
+        placementsForSingleApp = new ArrayList<>();
+        Combinatorics.combinations(graphModel.nodeNum, numOfVRCPerApp)
+                .stream()
+                .map(Main::combinChangeIntToString)
+                .forEach(Main::combinWritePlacementToList);
+
+        VRCnodeModel model5;
+        VRCnodeModel[] set5 = new VRCnodeModel[placementsForSingleApp.size()];
+        for (int i = 0; i < placementsForSingleApp.size(); i++) { // forth App
+            model5 = placementsForSingleApp.get(i);
+            set5[i] = model5;
+        }
+        // fifth app ---------------------------------
+        placementsForSingleApp = new ArrayList<>();
+        Combinatorics.combinations(graphModel.nodeNum, numOfVRCPerApp)
+                .stream()
+                .map(Main::combinChangeIntToString)
+                .forEach(Main::combinWritePlacementToList);
+
+        VRCnodeModel model6;
+        VRCnodeModel[] set6 = new VRCnodeModel[placementsForSingleApp.size()];
+        for (int i = 0; i < placementsForSingleApp.size(); i++) { // forth App
+            model6 = placementsForSingleApp.get(i);
+            set6[i] = model6;
+        }
+
+        Combinatorics.tuples(set1, set2, set3,set4,set5,set6)
                 .stream()
                 .map(Main::tupleCombine)
                 .forEach(numbers -> tupleWriteToList(numbers, numOfVRCPerApp, numberOfUsers, numOfApps, graphS));
@@ -186,7 +196,8 @@ public class Main {
 
         //optimal----------------------------------------------------------------
         Simulation2 simulation = new Simulation2(graph, numOfVRCPerApp, numOfUsers, numOfApps);  // just works for 2 apps for now
-        T_AVG = simulation.optimalEnumerationPlacementAlgorithm(numbers);
+        Times times = simulation.optimalEnumerationPlacementAlgorithm(numbers);
+        T_AVG = times.t_min;
         if (T_AVG <= T_MIN) {
             T_MIN = T_AVG;
             //System.out.println(T_MIN);
